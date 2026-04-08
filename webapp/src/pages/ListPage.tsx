@@ -24,7 +24,8 @@ function groupByTimeSlot(events: Event[]): TimeSlotGroup[] {
     if (e.type === 'special') g.specials.push(e as SpecialEvent)
     else g.sessions.push(e as Session)
   }
-  return Array.from(map.values()).sort((a, b) => a.start.localeCompare(b.start))
+  const pad = (t: string) => t.padStart(5, '0')
+  return Array.from(map.values()).sort((a, b) => pad(a.start).localeCompare(pad(b.start)))
 }
 
 // ─── components ─────────────────────────────────────────────────────────────
