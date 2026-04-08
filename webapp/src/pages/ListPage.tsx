@@ -4,7 +4,7 @@ import { formatDate } from '@/lib/utils'
 import PresentationRow from '@/components/PresentationRow'
 import { Badge } from '@/components/ui/badge'
 import type { Event, Session, SpecialEvent } from '@/types'
-import { ChevronDown, ChevronUp, LayoutGrid } from 'lucide-react'
+import { ChevronDown, ChevronUp, LayoutGrid, X } from 'lucide-react'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -30,14 +30,18 @@ function groupByTimeSlot(events: Event[]): TimeSlotGroup[] {
 
 // ─── components ─────────────────────────────────────────────────────────────
 
-function SessionRow({ session, roomLabel }: { session: Session; roomLabel: string }) {
+function SessionRow({ session, roomLabel, onSelect }: {
+  session: Session
+  roomLabel: string
+  onSelect?: (s: Session) => void
+}) {
   const [expanded, setExpanded] = useState(false)
 
   return (
     <div className="border rounded-lg bg-card">
       <button
         className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-muted/40 transition-colors"
-        onClick={() => setExpanded((v) => !v)}
+        onClick={() => onSelect ? onSelect(session) : setExpanded((v) => !v)}
       >
         {/* Time */}
         <span className="shrink-0 text-xs tabular-nums text-muted-foreground w-24">
@@ -47,7 +51,7 @@ function SessionRow({ session, roomLabel }: { session: Session; roomLabel: strin
         {/* Name + count */}
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold leading-snug">{session.name}</p>
-          {!expanded && (
+          {!expanded && !onSelect && (
             <p className="text-xs text-muted-foreground mt-0.5">
               {session.presentations.length} presentation{session.presentations.length !== 1 ? 's' : ''}
             </p>
@@ -57,13 +61,15 @@ function SessionRow({ session, roomLabel }: { session: Session; roomLabel: strin
         {/* Location */}
         <Badge variant="outline" className="text-xs shrink-0">{roomLabel}</Badge>
 
-        {/* Chevron */}
-        <span className="shrink-0 text-muted-foreground">
-          {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-        </span>
+        {/* Chevron — only when used inline (no onSelect) */}
+        {!onSelect && (
+          <span className="shrink-0 text-muted-foreground">
+            {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </span>
+        )}
       </button>
 
-      {expanded && (
+      {expanded && !onSelect && (
         <div className="border-t px-4 pb-3 pt-1">
           {session.presentations.map((p) => (
             <PresentationRow key={p.id} presentation={p} />
@@ -76,29 +82,18 @@ function SessionRow({ session, roomLabel }: { session: Session; roomLabel: strin
 
 function ParallelSessionsBlock({
   group,
-  roomLabelMap,
+  onSelectSession,
 }: {
   group: TimeSlotGroup
-  roomLabelMap: Map<string, string>
+  onSelectSession: (s: Session) => void
 }) {
-  const [expanded, setExpanded] = useState(false)
-
   return (
-    <div
-      className="border rounded-lg bg-card overflow-hidden"
-      onClick={() => !expanded && setExpanded(true)}
-    >
-      {/* Header */}
-      <button
-        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-muted/40 transition-colors"
-        onClick={(e) => { e.stopPropagation(); setExpanded((v) => !v) }}
-      >
-        {/* Time */}
+    <div className="border rounded-lg bg-card overflow-hidden">
+      {/* Header — informational only */}
+      <div className="flex items-center gap-3 px-4 py-3">
         <span className="shrink-0 text-xs tabular-nums text-muted-foreground w-24">
           {group.start}–{group.end}
         </span>
-
-        {/* Label */}
         <div className="min-w-0 flex-1 flex items-center gap-2">
           <LayoutGrid className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
           <div className="min-w-0">
@@ -108,42 +103,65 @@ function ParallelSessionsBlock({
             </p>
           </div>
         </div>
+      </div>
 
-        {/* Chevron */}
-        <span className="shrink-0 text-muted-foreground">
-          {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-        </span>
-      </button>
-
-      {/* Session pills when collapsed — clicking anywhere here also expands */}
-      {!expanded && (
-        <div className="px-4 pb-3 flex flex-wrap gap-1.5 cursor-pointer">
-          {group.sessions.map((s) => (
-            <span
-              key={s.session_id}
-              className="inline-flex items-center gap-1 rounded-md border bg-muted/40 px-2 py-0.5 text-xs text-muted-foreground"
-            >
-              <span className="font-medium text-foreground">{s.session_id}</span>
-              {s.name}
-            </span>
-          ))}
-        </div>
-      )}
-
-      {/* Expanded: individual session rows */}
-      {expanded && (
-        <div className="border-t divide-y" onClick={(e) => e.stopPropagation()}>
-          {group.sessions.map((s) => (
-            <div key={s.session_id} className="px-3 py-3">
-              <SessionRow
-                session={s}
-                roomLabel={roomLabelMap.get(s.room_id) ?? s.room_id}
-              />
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Clickable session pills */}
+      <div className="px-4 pb-3 flex flex-wrap gap-1.5">
+        {group.sessions.map((s) => (
+          <button
+            key={s.session_id}
+            onClick={() => onSelectSession(s)}
+            className="inline-flex items-center gap-1 rounded-md border bg-muted/40 px-2 py-0.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground hover:border-foreground/30 transition-colors"
+          >
+            <span className="font-medium text-foreground">{s.session_id}</span>
+            {s.name}
+          </button>
+        ))}
+      </div>
     </div>
+  )
+}
+
+// ─── slide-in panel ──────────────────────────────────────────────────────────
+
+function SessionPanel({
+  session,
+  roomLabel,
+  onClose,
+}: {
+  session: Session
+  roomLabel: string
+  onClose: () => void
+}) {
+  return (
+    <>
+      <div className="fixed inset-0 z-40 bg-black/20" onClick={onClose} />
+      <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-background border-l shadow-xl flex flex-col">
+        <div className="flex items-start justify-between gap-4 p-5 border-b">
+          <div>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+              {session.session_id} · {session.start}–{session.end}
+            </p>
+            <h3 className="text-base font-semibold leading-snug">{session.name}</h3>
+            <Badge variant="outline" className="mt-2 text-xs">{roomLabel}</Badge>
+          </div>
+          <button
+            onClick={onClose}
+            className="shrink-0 p-1 rounded-md hover:bg-muted transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-5">
+          <p className="text-xs text-muted-foreground mb-3 font-medium">
+            {session.presentations.length} presentation{session.presentations.length !== 1 ? 's' : ''}
+          </p>
+          {session.presentations.map((p) => (
+            <PresentationRow key={p.id} presentation={p} />
+          ))}
+        </div>
+      </div>
+    </>
   )
 }
 
@@ -151,6 +169,7 @@ function ParallelSessionsBlock({
 
 export default function ListPage() {
   const { data } = useProgramme()
+  const [selectedSession, setSelectedSession] = useState<Session | null>(null)
 
   if (!data) return null
 
@@ -184,7 +203,7 @@ export default function ListPage() {
                     </div>
                   ))}
 
-                  {/* Single session → plain row; multiple → parallel block */}
+                  {/* Single session → inline expand; multiple → parallel block with side panel */}
                   {group.sessions.length === 1 && (
                     <SessionRow
                       session={group.sessions[0]}
@@ -192,7 +211,10 @@ export default function ListPage() {
                     />
                   )}
                   {group.sessions.length > 1 && (
-                    <ParallelSessionsBlock group={group} roomLabelMap={roomLabelMap} />
+                    <ParallelSessionsBlock
+                      group={group}
+                      onSelectSession={setSelectedSession}
+                    />
                   )}
                 </div>
               ))}
@@ -200,6 +222,14 @@ export default function ListPage() {
           </section>
         )
       })}
+
+      {selectedSession && (
+        <SessionPanel
+          session={selectedSession}
+          roomLabel={roomLabelMap.get(selectedSession.room_id) ?? selectedSession.room_id}
+          onClose={() => setSelectedSession(null)}
+        />
+      )}
     </div>
   )
 }
