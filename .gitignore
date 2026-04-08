@@ -6,6 +6,4 @@ data/programme.json
 __pycache__/
 *.pyc
 
-# Legacy root-level files from initial dev
-parse_mie_programme.py
-programme.json
+data/programme.json
