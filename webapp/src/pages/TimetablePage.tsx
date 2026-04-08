@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { Calendar, dateFnsLocalizer, type EventProps } from 'react-big-calendar'
 import { format, parse, startOfWeek, getDay } from 'date-fns'
 import { enUS } from 'date-fns/locale/en-US'
@@ -57,7 +58,8 @@ function EventCard({ event }: EventProps<RBCEvent>) {
 
 export default function TimetablePage() {
   const { data } = useProgramme()
-  const [currentDate, setCurrentDate] = useState<Date | null>(null)
+  const { date: dateParam } = useParams<{ date?: string }>()
+  const navigate = useNavigate()
   const [selectedSession, setSelectedSession] = useState<Session | null>(null)
 
   const roomIndexMap = useMemo(() => {
@@ -106,51 +108,45 @@ export default function TimetablePage() {
   )
 
   const activeDateObj = useMemo(() => {
-    if (currentDate) return currentDate
-    if (!data?.days[0]) return new Date()
-    return new Date(data.days[0].date + 'T12:00:00')
-  }, [currentDate, data])
+    if (dateParam) {
+      const match = conferenceDates.find((d) => d.toISOString().slice(0, 10) === dateParam)
+      if (match) return match
+    }
+    return conferenceDates[0] ?? new Date()
+  }, [dateParam, conferenceDates])
 
   const activeIdx = useMemo(
     () => conferenceDates.findIndex((d) => d.toDateString() === activeDateObj.toDateString()),
     [conferenceDates, activeDateObj]
   )
 
+  const goToDay = (date: Date) => navigate(`/timetable/${date.toISOString().slice(0, 10)}`)
+
   if (!data) return null
 
   return (
     <div>
-      {/* Prev / date label / Next */}
+      {/* Date heading + prev/next buttons */}
       <div className="flex items-center justify-between mb-4">
-        <button
-          onClick={() => setCurrentDate(conferenceDates[activeIdx - 1])}
-          disabled={activeIdx <= 0}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:opacity-30 disabled:pointer-events-none"
-        >
-          <ChevronLeft className="h-4 w-4" />
-          {activeIdx > 0 && (
-            <span className="hidden sm:inline">
-              {formatDate(conferenceDates[activeIdx - 1].toISOString().slice(0, 10))}
-            </span>
-          )}
-        </button>
-
         <h2 className="text-lg font-semibold">
           {formatDate(activeDateObj.toISOString().slice(0, 10))}
         </h2>
-
-        <button
-          onClick={() => setCurrentDate(conferenceDates[activeIdx + 1])}
-          disabled={activeIdx >= conferenceDates.length - 1}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:opacity-30 disabled:pointer-events-none"
-        >
-          {activeIdx < conferenceDates.length - 1 && (
-            <span className="hidden sm:inline">
-              {formatDate(conferenceDates[activeIdx + 1].toISOString().slice(0, 10))}
-            </span>
-          )}
-          <ChevronRight className="h-4 w-4" />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => goToDay(conferenceDates[activeIdx - 1])}
+            disabled={activeIdx <= 0}
+            className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:opacity-30 disabled:pointer-events-none"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => goToDay(conferenceDates[activeIdx + 1])}
+            disabled={activeIdx >= conferenceDates.length - 1}
+            className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:opacity-30 disabled:pointer-events-none"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
       {/* Calendar */}
@@ -162,7 +158,7 @@ export default function TimetablePage() {
         date={activeDateObj}
         onNavigate={(date) => {
           const match = conferenceDates.find((d) => d.toDateString() === date.toDateString())
-          if (match) setCurrentDate(match)
+          if (match) goToDay(match)
         }}
         resources={resources}
         resourceIdAccessor="id"

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useProgramme } from '@/context'
 import { formatDate } from '@/lib/utils'
 import PresentationRow from '@/components/PresentationRow'
@@ -142,42 +143,42 @@ function SessionPanel({
 
 export default function ListPage() {
   const { data } = useProgramme()
-  const [dayIdx, setDayIdx] = useState(0)
+  const { date: dateParam } = useParams<{ date?: string }>()
+  const navigate = useNavigate()
   const [selectedSession, setSelectedSession] = useState<Session | null>(null)
 
   if (!data) return null
 
   const roomLabelMap = new Map(data.rooms.map((r) => [r.id, r.nickname || r.label]))
+
+  const dayIdx = dateParam
+    ? Math.max(0, data.days.findIndex((d) => d.date === dateParam))
+    : 0
   const day = data.days[dayIdx]
   const groups = groupByTimeSlot(day.events)
+  const goToDay = (idx: number) => navigate(`/list/${data.days[idx].date}`)
 
   return (
     <div>
-      {/* Day navigation */}
+      {/* Date heading + prev/next buttons */}
       <div className="flex items-center justify-between mb-6">
-        <button
-          onClick={() => setDayIdx((i) => i - 1)}
-          disabled={dayIdx === 0}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:opacity-30 disabled:pointer-events-none"
-        >
-          <ChevronLeft className="h-4 w-4" />
-          <span className="hidden sm:inline">
-            {dayIdx > 0 && formatDate(data.days[dayIdx - 1].date)}
-          </span>
-        </button>
-
         <h2 className="text-lg font-semibold">{formatDate(day.date)}</h2>
-
-        <button
-          onClick={() => setDayIdx((i) => i + 1)}
-          disabled={dayIdx === data.days.length - 1}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:opacity-30 disabled:pointer-events-none"
-        >
-          <span className="hidden sm:inline">
-            {dayIdx < data.days.length - 1 && formatDate(data.days[dayIdx + 1].date)}
-          </span>
-          <ChevronRight className="h-4 w-4" />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => goToDay(dayIdx - 1)}
+            disabled={dayIdx === 0}
+            className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:opacity-30 disabled:pointer-events-none"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => goToDay(dayIdx + 1)}
+            disabled={dayIdx === data.days.length - 1}
+            className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:opacity-30 disabled:pointer-events-none"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
       {/* Events for the active day */}

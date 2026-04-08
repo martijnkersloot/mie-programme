@@ -72,7 +72,9 @@ export default function App() {
             <Routes>
               <Route path="/" element={<Navigate to="/timetable" replace />} />
               <Route path="/timetable" element={<TimetablePage />} />
+              <Route path="/timetable/:date" element={<TimetablePage />} />
               <Route path="/list" element={<ListPage />} />
+              <Route path="/list/:date" element={<ListPage />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="*" element={<Navigate to="/timetable" replace />} />
             </Routes>
