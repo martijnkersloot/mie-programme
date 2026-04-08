@@ -1,9 +1,7 @@
-import 'temporal-polyfill/global'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import 'react-big-calendar/lib/css/react-big-calendar.css'
 import './index.css'
-// schedule-x theme imported after Tailwind so its styles win
-import '@schedule-x/theme-default/dist/index.css'
 import App from './App'
 
 createRoot(document.getElementById('root')!).render(

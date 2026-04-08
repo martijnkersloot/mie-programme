@@ -34,9 +34,136 @@
   }
 }
 
-/* Schedule-X calendar wrapper dimensions */
-.sx-react-calendar-wrapper {
-  width: 100%;
-  height: 700px;
-  max-height: 80vh;
+/* ─── react-big-calendar overrides ─────────────────────────────────────────── */
+
+.rbc-calendar {
+  font-family: inherit;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  border-radius: var(--radius);
+  border: 1px solid hsl(var(--border));
+  overflow: hidden;
+}
+
+/* Time gutter + header */
+.rbc-time-view,
+.rbc-time-header {
+  border-color: hsl(var(--border));
+}
+
+.rbc-time-header-content {
+  border-left-color: hsl(var(--border));
+}
+
+.rbc-time-header.rbc-overflowing {
+  border-right-color: hsl(var(--border));
+}
+
+.rbc-header {
+  font-weight: 600;
+  font-size: 0.8125rem;
+  color: hsl(var(--muted-foreground));
+  border-bottom-color: hsl(var(--border));
+  padding: 0.5rem 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.rbc-header + .rbc-header {
+  border-left-color: hsl(var(--border));
+}
+
+/* Gutter (time labels) */
+.rbc-time-gutter .rbc-timeslot-group {
+  border-bottom-color: hsl(var(--border));
+}
+
+.rbc-time-slot {
+  font-size: 0.6875rem;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Time grid */
+.rbc-timeslot-group {
+  border-bottom-color: hsl(var(--border));
+  min-height: 48px;
+}
+
+.rbc-time-content {
+  border-top-color: hsl(var(--border));
+}
+
+.rbc-time-content > * + * > * {
+  border-left-color: hsl(var(--border));
+}
+
+.rbc-day-slot .rbc-time-slot {
+  border-top-color: hsl(var(--border) / 0.5);
+}
+
+/* Today highlight */
+.rbc-today {
+  background-color: hsl(var(--primary) / 0.03);
+}
+
+/* Current time indicator */
+.rbc-current-time-indicator {
+  background-color: hsl(var(--primary));
+  height: 2px;
+}
+
+.rbc-current-time-indicator::before {
+  content: '';
+  display: block;
+  position: absolute;
+  left: -4px;
+  top: -4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: hsl(var(--primary));
+}
+
+/* Events */
+.rbc-event {
+  border-radius: 5px !important;
+  border: none !important;
+  padding: 3px 6px !important;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.15);
+  cursor: pointer;
+  transition: filter 0.1s;
+}
+
+.rbc-event:hover {
+  filter: brightness(0.92);
+}
+
+.rbc-event.rbc-selected {
+  filter: brightness(0.88);
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 1px;
+}
+
+.rbc-event-label {
+  display: none; /* we render our own time in the event component */
+}
+
+/* Remove default focus ring clash */
+.rbc-event:focus {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 1px;
+}
+
+/* Show more link */
+.rbc-show-more {
+  color: hsl(var(--primary));
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Toolbar (hidden — we provide our own) */
+.rbc-toolbar {
+  display: none;
 }

@@ -1,12 +1,21 @@
 import { useMemo, useState } from 'react'
-import { useNextCalendarApp, ScheduleXCalendar } from '@schedule-x/react'
-import { createViewDay } from '@schedule-x/calendar'
-import type { CalendarEvent } from '@schedule-x/calendar'
+import { Calendar, dateFnsLocalizer, type EventProps } from 'react-big-calendar'
+import { format, parse, startOfWeek, getDay } from 'date-fns'
+import { enUS } from 'date-fns/locale/en-US'
 import { useProgramme } from '@/context'
+import { formatDate, formatDateShort, cn } from '@/lib/utils'
 import PresentationRow from '@/components/PresentationRow'
 import type { Session } from '@/types'
 import { X } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek: () => startOfWeek(new Date(), { weekStartsOn: 1 }),
+  getDay,
+  locales: { 'en-US': enUS },
+})
 
 const ROOM_COLORS = [
   { main: '#2563eb', container: '#dbeafe', onContainer: '#1e40af' },
@@ -20,18 +29,38 @@ const ROOM_COLORS = [
   { main: '#65a30d', container: '#ecfccb', onContainer: '#3f6212' },
 ]
 
-function toZDT(date: string, time: string) {
-  const padded = time.padStart(5, '0') // "8:30" → "08:30"
-  return Temporal.ZonedDateTime.from(`${date}T${padded}:00[Europe/Amsterdam]`)
+interface RBCEvent {
+  title: string
+  start: Date
+  end: Date
+  resource?: Session
+  roomId: string
+  isSpecial: boolean
+  sessionId?: string
 }
 
-/** Replace every character that isn't alphanumeric or a hyphen with a hyphen */
-function toSafeId(raw: string) {
-  return raw.replace(/[^a-zA-Z0-9-]/g, '-')
+function toDate(dateStr: string, timeStr: string): Date {
+  const padded = timeStr.padStart(5, '0')
+  return new Date(`${dateStr}T${padded}:00`)
+}
+
+// Custom event card rendered inside each calendar block
+function EventCard({ event }: EventProps<RBCEvent>) {
+  return (
+    <div className="h-full overflow-hidden">
+      {event.sessionId && (
+        <p className="text-[10px] font-bold uppercase tracking-wide opacity-75 leading-none mb-0.5">
+          {event.sessionId}
+        </p>
+      )}
+      <p className="text-xs font-semibold leading-snug line-clamp-3">{event.title}</p>
+    </div>
+  )
 }
 
 export default function TimetablePage() {
   const { data } = useProgramme()
+  const [currentDate, setCurrentDate] = useState<Date | null>(null)
   const [selectedSession, setSelectedSession] = useState<Session | null>(null)
 
   const roomIndexMap = useMemo(() => {
@@ -46,73 +75,73 @@ export default function TimetablePage() {
     return m
   }, [data])
 
-  const calendarsConfig = useMemo(() => {
-    if (!data) return {}
-    return Object.fromEntries(
-      data.rooms.map((room) => {
-        const idx = roomIndexMap.get(room.id) ?? 0
-        const colors = ROOM_COLORS[idx % ROOM_COLORS.length]
-        return [room.id, { colorName: room.id, lightColors: colors, darkColors: colors }]
-      })
-    )
-  }, [data, roomIndexMap])
-
-  const allEvents = useMemo((): CalendarEvent[] => {
+  // All events across all days
+  const allEvents = useMemo((): RBCEvent[] => {
     if (!data) return []
     return data.days.flatMap((day) =>
       day.events.map((e) => ({
-        id: toSafeId(e.type === 'session' ? e.session_id : `special-${day.date}-${e.start}`),
         title: e.name,
-        start: toZDT(day.date, e.start),
-        end: toZDT(day.date, e.end),
-        calendarId: e.room_id,
-        // store session for click handler
-        ...(e.type === 'session' ? { _session: e } : {}),
+        start: toDate(day.date, e.start),
+        end: toDate(day.date, e.end),
+        roomId: e.room_id,
+        isSpecial: e.type === 'special',
+        sessionId: e.type === 'session' ? e.session_id : undefined,
+        resource: e.type === 'session' ? e : undefined,
       }))
     )
   }, [data])
 
-  const { slotMinTime, slotMaxTime } = useMemo(() => {
-    if (!data) return { slotMinTime: '08:00', slotMaxTime: '20:00' }
-    const allTimes = data.days.flatMap((d) => d.events)
-    const minH = Math.max(0, Math.min(...allTimes.map((e) => parseInt(e.start))) - 1)
-    const maxH = Math.min(24, Math.max(...allTimes.map((e) => parseInt(e.end))) + 1)
-    return {
-      slotMinTime: `${String(minH).padStart(2, '0')}:00`,
-      slotMaxTime: `${String(maxH).padStart(2, '0')}:00`,
-    }
+  // Derive day boundaries from all events
+  const { minTime, maxTime } = useMemo(() => {
+    if (!data) return { minTime: new Date(0, 0, 0, 8, 0), maxTime: new Date(0, 0, 0, 20, 0) }
+    const allEvts = data.days.flatMap((d) => d.events)
+    const minH = Math.max(0, Math.min(...allEvts.map((e) => parseInt(e.start))) - 1)
+    const maxH = Math.min(24, Math.max(...allEvts.map((e) => parseInt(e.end))) + 1)
+    return { minTime: new Date(0, 0, 0, minH, 0), maxTime: new Date(0, 0, 0, maxH, 0) }
   }, [data])
 
-  const firstDate = data?.days[0]?.date
-  const lastDate = data?.days[data.days.length - 1]?.date
+  // Initialise to first conference day
+  const activeDateObj = useMemo(() => {
+    if (currentDate) return currentDate
+    if (!data?.days[0]) return new Date()
+    return new Date(data.days[0].date + 'T12:00:00')
+  }, [currentDate, data])
 
-  const calendar = useNextCalendarApp(
-    {
-      views: [createViewDay()],
-      events: allEvents as unknown as CalendarEvent[],
-      calendars: calendarsConfig,
-      dayBoundaries: { start: slotMinTime, end: slotMaxTime },
-      ...(firstDate
-        ? {
-            selectedDate: Temporal.PlainDate.from(firstDate),
-            minDate: Temporal.PlainDate.from(firstDate),
-            maxDate: Temporal.PlainDate.from(lastDate!),
-          }
-        : {}),
-      callbacks: {
-        onEventClick: (event) => {
-          const session = (event as unknown as { _session?: Session })._session
-          if (session) setSelectedSession(session)
-        },
-      },
-    },
-    []
+  const conferenceDates = useMemo(
+    () => data?.days.map((d) => new Date(d.date + 'T12:00:00')) ?? [],
+    [data]
   )
 
   if (!data) return null
 
   return (
     <div>
+      {/* Day navigation */}
+      <div className="flex gap-0 border-b mb-4 overflow-x-auto">
+        {data.days.map((day) => {
+          const dayDate = new Date(day.date + 'T12:00:00')
+          const isActive = activeDateObj.toDateString() === dayDate.toDateString()
+          return (
+            <button
+              key={day.date}
+              onClick={() => setCurrentDate(dayDate)}
+              className={cn(
+                'whitespace-nowrap px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors shrink-0',
+                isActive
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground'
+              )}
+            >
+              {formatDateShort(day.date)}
+            </button>
+          )
+        })}
+      </div>
+
+      <h2 className="text-lg font-semibold mb-3">
+        {formatDate(activeDateObj.toISOString().slice(0, 10))}
+      </h2>
+
       {/* Room colour legend */}
       <div className="flex flex-wrap gap-2 mb-4">
         {data.rooms.map((room) => {
@@ -131,9 +160,50 @@ export default function TimetablePage() {
         })}
       </div>
 
-      <ScheduleXCalendar calendarApp={calendar} />
+      {/* Calendar */}
+      <Calendar<RBCEvent>
+        localizer={localizer}
+        events={allEvents}
+        defaultView="day"
+        views={['day']}
+        date={activeDateObj}
+        onNavigate={(date) => {
+          // Only allow navigation to actual conference days
+          const match = conferenceDates.find((d) => d.toDateString() === date.toDateString())
+          if (match) setCurrentDate(match)
+        }}
+        min={minTime}
+        max={maxTime}
+        step={15}
+        timeslots={4}
+        style={{ height: 'calc(100vh - 280px)', minHeight: 500 }}
+        eventPropGetter={(event) => {
+          const idx = roomIndexMap.get(event.roomId) ?? 0
+          const color = ROOM_COLORS[idx % ROOM_COLORS.length]
+          return {
+            style: {
+              backgroundColor: event.isSpecial
+                ? 'hsl(221.2 83.2% 53.3% / 0.15)'
+                : color.main,
+              color: event.isSpecial ? 'hsl(221.2 83.2% 35%)' : '#fff',
+            },
+          }
+        }}
+        components={{
+          event: EventCard,
+        }}
+        onSelectEvent={(event) => {
+          if (event.resource) setSelectedSession(event.resource)
+        }}
+        formats={{
+          timeGutterFormat: (date, culture, loc) =>
+            loc!.format(date, 'HH:mm', culture),
+          eventTimeRangeFormat: () => '',
+        }}
+        popup
+      />
 
-      {/* Session detail panel */}
+      {/* Session detail slide-in */}
       {selectedSession && (
         <>
           <div className="fixed inset-0 z-40 bg-black/20" onClick={() => setSelectedSession(null)} />
