@@ -4,10 +4,10 @@ import { Calendar, dateFnsLocalizer, type EventProps } from 'react-big-calendar'
 import { format, parse, startOfWeek, getDay } from 'date-fns'
 import { enUS } from 'date-fns/locale/en-US'
 import { useProgramme } from '@/context'
-import { formatDate, formatDateShort, cn } from '@/lib/utils'
+import { formatDate } from '@/lib/utils'
 import PresentationRow from '@/components/PresentationRow'
 import type { Session } from '@/types'
-import { X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 
 const localizer = dateFnsLocalizer({
@@ -27,7 +27,6 @@ interface RBCEvent {
   title: string
   start: Date
   end: Date
-  /** Custom session payload — renamed to avoid clash with rbc's own `resource` accessor */
   session?: Session
   roomId: string
   isSpecial: boolean
@@ -73,7 +72,6 @@ export default function TimetablePage() {
     return m
   }, [data])
 
-  // Resources = one entry per room, used as calendar columns
   const resources = useMemo((): RBCResource[] =>
     data?.rooms.map((r) => ({ id: r.id, title: r.nickname || r.label })) ?? [],
     [data]
@@ -102,48 +100,60 @@ export default function TimetablePage() {
     return { minTime: new Date(0, 0, 0, minH, 0), maxTime: new Date(0, 0, 0, maxH, 0) }
   }, [data])
 
+  const conferenceDates = useMemo(
+    () => data?.days.map((d) => new Date(d.date + 'T12:00:00')) ?? [],
+    [data]
+  )
+
   const activeDateObj = useMemo(() => {
     if (currentDate) return currentDate
     if (!data?.days[0]) return new Date()
     return new Date(data.days[0].date + 'T12:00:00')
   }, [currentDate, data])
 
-  const conferenceDates = useMemo(
-    () => data?.days.map((d) => new Date(d.date + 'T12:00:00')) ?? [],
-    [data]
+  const activeIdx = useMemo(
+    () => conferenceDates.findIndex((d) => d.toDateString() === activeDateObj.toDateString()),
+    [conferenceDates, activeDateObj]
   )
 
   if (!data) return null
 
   return (
     <div>
-      {/* Day tabs */}
-      <div className="flex gap-0 border-b mb-4 overflow-x-auto">
-        {data.days.map((day) => {
-          const dayDate = new Date(day.date + 'T12:00:00')
-          const isActive = activeDateObj.toDateString() === dayDate.toDateString()
-          return (
-            <button
-              key={day.date}
-              onClick={() => setCurrentDate(dayDate)}
-              className={cn(
-                'whitespace-nowrap px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors shrink-0',
-                isActive
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground'
-              )}
-            >
-              {formatDateShort(day.date)}
-            </button>
-          )
-        })}
+      {/* Prev / date label / Next */}
+      <div className="flex items-center justify-between mb-4">
+        <button
+          onClick={() => setCurrentDate(conferenceDates[activeIdx - 1])}
+          disabled={activeIdx <= 0}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:opacity-30 disabled:pointer-events-none"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          {activeIdx > 0 && (
+            <span className="hidden sm:inline">
+              {formatDate(conferenceDates[activeIdx - 1].toISOString().slice(0, 10))}
+            </span>
+          )}
+        </button>
+
+        <h2 className="text-lg font-semibold">
+          {formatDate(activeDateObj.toISOString().slice(0, 10))}
+        </h2>
+
+        <button
+          onClick={() => setCurrentDate(conferenceDates[activeIdx + 1])}
+          disabled={activeIdx >= conferenceDates.length - 1}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:opacity-30 disabled:pointer-events-none"
+        >
+          {activeIdx < conferenceDates.length - 1 && (
+            <span className="hidden sm:inline">
+              {formatDate(conferenceDates[activeIdx + 1].toISOString().slice(0, 10))}
+            </span>
+          )}
+          <ChevronRight className="h-4 w-4" />
+        </button>
       </div>
 
-      <h2 className="text-lg font-semibold mb-3">
-        {formatDate(activeDateObj.toISOString().slice(0, 10))}
-      </h2>
-
-      {/* Calendar with resource columns */}
+      {/* Calendar */}
       <Calendar<RBCEvent, RBCResource>
         localizer={localizer}
         events={allEvents}
@@ -162,7 +172,7 @@ export default function TimetablePage() {
         max={maxTime}
         step={30}
         timeslots={2}
-        style={{ height: 'calc(100vh - 260px)', minHeight: 500 }}
+        style={{ height: 'calc(100vh - 240px)', minHeight: 500 }}
         eventPropGetter={(event) => {
           const idx = roomIndexMap.get(event.roomId) ?? 0
           const color = ROOM_COLORS[idx % ROOM_COLORS.length]
