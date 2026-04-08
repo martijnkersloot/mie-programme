@@ -5,7 +5,7 @@ import { formatDate } from '@/lib/utils'
 import PresentationRow from '@/components/PresentationRow'
 import { Badge } from '@/components/ui/badge'
 import type { Event, Session, SpecialEvent } from '@/types'
-import { X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -142,59 +142,81 @@ function SessionPanel({
 
 export default function ListPage() {
   const { data } = useProgramme()
+  const [dayIdx, setDayIdx] = useState(0)
   const [selectedSession, setSelectedSession] = useState<Session | null>(null)
 
   if (!data) return null
 
   const roomLabelMap = new Map(data.rooms.map((r) => [r.id, r.nickname || r.label]))
+  const day = data.days[dayIdx]
+  const groups = groupByTimeSlot(day.events)
 
   return (
-    <div className="space-y-10">
-      {data.days.map((day) => {
-        const groups = groupByTimeSlot(day.events)
-        return (
-          <section key={day.date}>
-            <h2 className="text-xl font-semibold mb-4 pb-2 border-b">{formatDate(day.date)}</h2>
-            <div className="space-y-3">
-              {groups.map((group) => (
-                <div key={`${group.start}|${group.end}`} className="space-y-3">
-                  {/* Special events */}
-                  {group.specials.map((e, i) => (
-                    <div
-                      key={i}
-                      className="rounded-md bg-primary/5 border border-primary/20 px-4 py-3 flex items-center gap-3"
-                    >
-                      <span className="shrink-0 text-xs tabular-nums text-muted-foreground w-24">
-                        {e.start}–{e.end}
-                      </span>
-                      <span className="flex-1 font-medium text-sm">{e.name}</span>
-                      {roomLabelMap.get(e.room_id) && (
-                        <Badge variant="outline" className="text-xs shrink-0">
-                          {roomLabelMap.get(e.room_id)}
-                        </Badge>
-                      )}
-                    </div>
-                  ))}
+    <div>
+      {/* Day navigation */}
+      <div className="flex items-center justify-between mb-6">
+        <button
+          onClick={() => setDayIdx((i) => i - 1)}
+          disabled={dayIdx === 0}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:opacity-30 disabled:pointer-events-none"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          <span className="hidden sm:inline">
+            {dayIdx > 0 && formatDate(data.days[dayIdx - 1].date)}
+          </span>
+        </button>
 
-                  {group.sessions.length === 1 && (
-                    <SessionRow
-                      session={group.sessions[0]}
-                      roomLabel={roomLabelMap.get(group.sessions[0].room_id) ?? group.sessions[0].room_id}
-                      onSelect={setSelectedSession}
-                    />
-                  )}
-                  {group.sessions.length > 1 && (
-                    <ParallelSessionsBlock
-                      group={group}
-                      onSelectSession={setSelectedSession}
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-        )
-      })}
+        <h2 className="text-lg font-semibold">{formatDate(day.date)}</h2>
+
+        <button
+          onClick={() => setDayIdx((i) => i + 1)}
+          disabled={dayIdx === data.days.length - 1}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:opacity-30 disabled:pointer-events-none"
+        >
+          <span className="hidden sm:inline">
+            {dayIdx < data.days.length - 1 && formatDate(data.days[dayIdx + 1].date)}
+          </span>
+          <ChevronRight className="h-4 w-4" />
+        </button>
+      </div>
+
+      {/* Events for the active day */}
+      <div className="space-y-3">
+        {groups.map((group) => (
+          <div key={`${group.start}|${group.end}`} className="space-y-3">
+            {group.specials.map((e, i) => (
+              <div
+                key={i}
+                className="rounded-md bg-primary/5 border border-primary/20 px-4 py-3 flex items-center gap-3"
+              >
+                <span className="shrink-0 text-xs tabular-nums text-muted-foreground w-24">
+                  {e.start}–{e.end}
+                </span>
+                <span className="flex-1 font-medium text-sm">{e.name}</span>
+                {roomLabelMap.get(e.room_id) && (
+                  <Badge variant="outline" className="text-xs shrink-0">
+                    {roomLabelMap.get(e.room_id)}
+                  </Badge>
+                )}
+              </div>
+            ))}
+
+            {group.sessions.length === 1 && (
+              <SessionRow
+                session={group.sessions[0]}
+                roomLabel={roomLabelMap.get(group.sessions[0].room_id) ?? group.sessions[0].room_id}
+                onSelect={setSelectedSession}
+              />
+            )}
+            {group.sessions.length > 1 && (
+              <ParallelSessionsBlock
+                group={group}
+                onSelectSession={setSelectedSession}
+              />
+            )}
+          </div>
+        ))}
+      </div>
 
       {selectedSession && (
         <SessionPanel
