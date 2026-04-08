@@ -133,7 +133,9 @@ export default function SearchPage() {
                     <p className="text-sm font-semibold mt-0.5">{session.name}</p>
                   </div>
                   <Badge variant="outline" className="text-xs shrink-0">
-                    {session.room_name || session.room}
+                    {data?.rooms.find((r) => r.id === session.room_id)?.nickname ||
+                      data?.rooms.find((r) => r.id === session.room_id)?.label ||
+                      session.room_id}
                   </Badge>
                 </div>
                 {/* Matching presentations */}

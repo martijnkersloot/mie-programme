@@ -12,21 +12,25 @@ export interface Presentation {
   title: string
 }
 
+export interface Room {
+  id: string
+  label: string
+  nickname: string
+}
+
 export interface SpecialEvent {
   type: 'special'
   name: string
+  room_id: string
   start: string
   end: string
-  room?: string
-  room_name?: string
 }
 
 export interface Session {
   type: 'session'
   session_id: string
   name: string
-  room: string
-  room_name: string
+  room_id: string
   start: string
   end: string
   presentations: Presentation[]
@@ -42,5 +46,6 @@ export interface Day {
 export interface Programme {
   conference: string
   title: string
+  rooms: Room[]
   days: Day[]
 }
