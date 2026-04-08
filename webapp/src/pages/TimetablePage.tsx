@@ -18,42 +18,39 @@ const localizer = dateFnsLocalizer({
 })
 
 const ROOM_COLORS = [
-  { main: '#2563eb', container: '#dbeafe', onContainer: '#1e40af' },
-  { main: '#0891b2', container: '#cffafe', onContainer: '#164e63' },
-  { main: '#059669', container: '#d1fae5', onContainer: '#065f46' },
-  { main: '#d97706', container: '#fef3c7', onContainer: '#92400e' },
-  { main: '#dc2626', container: '#fee2e2', onContainer: '#991b1b' },
-  { main: '#7c3aed', container: '#ede9fe', onContainer: '#4c1d95' },
-  { main: '#db2777', container: '#fce7f3', onContainer: '#9d174d' },
-  { main: '#ea580c', container: '#ffedd5', onContainer: '#9a3412' },
-  { main: '#65a30d', container: '#ecfccb', onContainer: '#3f6212' },
+  '#2563eb', '#0891b2', '#059669', '#d97706',
+  '#dc2626', '#7c3aed', '#db2777', '#ea580c', '#65a30d',
 ]
 
 interface RBCEvent {
   title: string
   start: Date
   end: Date
-  resource?: Session
+  /** Custom session payload — renamed to avoid clash with rbc's own `resource` accessor */
+  session?: Session
   roomId: string
   isSpecial: boolean
   sessionId?: string
 }
 
-function toDate(dateStr: string, timeStr: string): Date {
-  const padded = timeStr.padStart(5, '0')
-  return new Date(`${dateStr}T${padded}:00`)
+interface RBCResource {
+  id: string
+  title: string
 }
 
-// Custom event card rendered inside each calendar block
+function toDate(dateStr: string, timeStr: string): Date {
+  return new Date(`${dateStr}T${timeStr.padStart(5, '0')}:00`)
+}
+
 function EventCard({ event }: EventProps<RBCEvent>) {
   return (
-    <div className="h-full overflow-hidden">
+    <div className="h-full overflow-hidden leading-tight">
       {event.sessionId && (
-        <p className="text-[10px] font-bold uppercase tracking-wide opacity-75 leading-none mb-0.5">
+        <p className="text-[10px] font-bold uppercase tracking-wide opacity-80 leading-none mb-0.5">
           {event.sessionId}
         </p>
       )}
-      <p className="text-xs font-semibold leading-snug line-clamp-3">{event.title}</p>
+      <p className="text-xs font-semibold line-clamp-3">{event.title}</p>
     </div>
   )
 }
@@ -75,7 +72,12 @@ export default function TimetablePage() {
     return m
   }, [data])
 
-  // All events across all days
+  // Resources = one entry per room, used as calendar columns
+  const resources = useMemo((): RBCResource[] =>
+    data?.rooms.map((r) => ({ id: r.id, title: r.nickname || r.label })) ?? [],
+    [data]
+  )
+
   const allEvents = useMemo((): RBCEvent[] => {
     if (!data) return []
     return data.days.flatMap((day) =>
@@ -86,12 +88,11 @@ export default function TimetablePage() {
         roomId: e.room_id,
         isSpecial: e.type === 'special',
         sessionId: e.type === 'session' ? e.session_id : undefined,
-        resource: e.type === 'session' ? e : undefined,
+        session: e.type === 'session' ? e : undefined,
       }))
     )
   }, [data])
 
-  // Derive day boundaries from all events
   const { minTime, maxTime } = useMemo(() => {
     if (!data) return { minTime: new Date(0, 0, 0, 8, 0), maxTime: new Date(0, 0, 0, 20, 0) }
     const allEvts = data.days.flatMap((d) => d.events)
@@ -100,7 +101,6 @@ export default function TimetablePage() {
     return { minTime: new Date(0, 0, 0, minH, 0), maxTime: new Date(0, 0, 0, maxH, 0) }
   }, [data])
 
-  // Initialise to first conference day
   const activeDateObj = useMemo(() => {
     if (currentDate) return currentDate
     if (!data?.days[0]) return new Date()
@@ -116,7 +116,7 @@ export default function TimetablePage() {
 
   return (
     <div>
-      {/* Day navigation */}
+      {/* Day tabs */}
       <div className="flex gap-0 border-b mb-4 overflow-x-auto">
         {data.days.map((day) => {
           const dayDate = new Date(day.date + 'T12:00:00')
@@ -142,63 +142,46 @@ export default function TimetablePage() {
         {formatDate(activeDateObj.toISOString().slice(0, 10))}
       </h2>
 
-      {/* Room colour legend */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        {data.rooms.map((room) => {
-          const idx = roomIndexMap.get(room.id) ?? 0
-          const color = ROOM_COLORS[idx % ROOM_COLORS.length]
-          return (
-            <span
-              key={room.id}
-              className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
-              style={{ backgroundColor: color.container, color: color.onContainer }}
-            >
-              <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color.main }} />
-              {room.nickname || room.label}
-            </span>
-          )
-        })}
-      </div>
-
-      {/* Calendar */}
-      <Calendar<RBCEvent>
+      {/* Calendar with resource columns */}
+      <Calendar<RBCEvent, RBCResource>
         localizer={localizer}
         events={allEvents}
         defaultView="day"
         views={['day']}
         date={activeDateObj}
         onNavigate={(date) => {
-          // Only allow navigation to actual conference days
           const match = conferenceDates.find((d) => d.toDateString() === date.toDateString())
           if (match) setCurrentDate(match)
         }}
+        resources={resources}
+        resourceIdAccessor="id"
+        resourceTitleAccessor="title"
+        resourceAccessor="roomId"
         min={minTime}
         max={maxTime}
-        step={15}
-        timeslots={4}
-        style={{ height: 'calc(100vh - 280px)', minHeight: 500 }}
+        step={30}
+        timeslots={2}
+        style={{ height: 'calc(100vh - 260px)', minHeight: 500 }}
         eventPropGetter={(event) => {
           const idx = roomIndexMap.get(event.roomId) ?? 0
           const color = ROOM_COLORS[idx % ROOM_COLORS.length]
           return {
             style: {
-              backgroundColor: event.isSpecial
-                ? 'hsl(221.2 83.2% 53.3% / 0.15)'
-                : color.main,
+              backgroundColor: event.isSpecial ? 'hsl(221.2 83.2% 53.3% / 0.15)' : color,
               color: event.isSpecial ? 'hsl(221.2 83.2% 35%)' : '#fff',
+              borderRadius: '5px',
+              border: 'none',
             },
           }
         }}
-        components={{
-          event: EventCard,
-        }}
+        components={{ event: EventCard }}
         onSelectEvent={(event) => {
-          if (event.resource) setSelectedSession(event.resource)
+          if (event.session) setSelectedSession(event.session)
         }}
         formats={{
-          timeGutterFormat: (date, culture, loc) =>
-            loc!.format(date, 'HH:mm', culture),
+          timeGutterFormat: (date, culture, loc) => loc!.format(date, 'HH:mm', culture),
           eventTimeRangeFormat: () => '',
+          dayRangeHeaderFormat: () => '',
         }}
         popup
       />

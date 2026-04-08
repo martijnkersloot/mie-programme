@@ -167,3 +167,20 @@
 .rbc-toolbar {
   display: none;
 }
+
+/* Resource column headers */
+.rbc-row.rbc-row-resource .rbc-header {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+  background: hsl(var(--muted) / 0.5);
+  text-transform: none;
+  letter-spacing: 0;
+  padding: 0.5rem 0.5rem;
+  text-align: center;
+}
+
+/* Ensure resource columns have borders */
+.rbc-time-header-content .rbc-row.rbc-row-resource {
+  border-bottom: 1px solid hsl(var(--border));
+}
