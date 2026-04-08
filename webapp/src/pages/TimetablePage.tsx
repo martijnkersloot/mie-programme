@@ -25,6 +25,11 @@ function toZDT(date: string, time: string) {
   return Temporal.ZonedDateTime.from(`${date}T${padded}:00[Europe/Amsterdam]`)
 }
 
+/** Replace every character that isn't alphanumeric or a hyphen with a hyphen */
+function toSafeId(raw: string) {
+  return raw.replace(/[^a-zA-Z0-9-]/g, '-')
+}
+
 export default function TimetablePage() {
   const { data } = useProgramme()
   const [selectedSession, setSelectedSession] = useState<Session | null>(null)
@@ -56,7 +61,7 @@ export default function TimetablePage() {
     if (!data) return []
     return data.days.flatMap((day) =>
       day.events.map((e) => ({
-        id: e.type === 'session' ? e.session_id : `special-${day.date}-${e.start.replace(/:/g, '')}`,
+        id: toSafeId(e.type === 'session' ? e.session_id : `special-${day.date}-${e.start}`),
         title: e.name,
         start: toZDT(day.date, e.start),
         end: toZDT(day.date, e.end),
