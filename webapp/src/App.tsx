@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BrowserRouter, Routes, Route, Navigate, NavLink, useNavigate, useLocation } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { ProgrammeContext } from './context'
 import type { Programme } from './types'
 import TimetablePage from './pages/TimetablePage'
@@ -146,7 +146,7 @@ export default function App() {
 
   return (
     <ProgrammeContext.Provider value={{ data, loading, error }}>
-      <BrowserRouter>
+      <HashRouter>
         <Layout>
           {loading && <LoadingSkeleton />}
           {error && (
@@ -166,7 +166,7 @@ export default function App() {
             </Routes>
           )}
         </Layout>
-      </BrowserRouter>
+      </HashRouter>
     </ProgrammeContext.Provider>
   )
 }
