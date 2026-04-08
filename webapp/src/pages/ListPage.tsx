@@ -35,17 +35,16 @@ function SessionRow({ session, roomLabel }: { session: Session; roomLabel: strin
   return (
     <div className="border rounded-lg bg-card">
       <button
-        className="w-full flex items-start justify-between gap-4 px-4 py-3 text-left"
+        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-muted/40 transition-colors"
         onClick={() => setExpanded((v) => !v)}
       >
+        {/* Time */}
+        <span className="shrink-0 text-xs tabular-nums text-muted-foreground w-24">
+          {session.start}–{session.end}
+        </span>
+
+        {/* Name + count */}
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mb-0.5">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              {session.session_id}
-            </span>
-            <span className="text-xs text-muted-foreground">{session.start}–{session.end}</span>
-            <Badge variant="outline" className="text-xs">{roomLabel}</Badge>
-          </div>
           <p className="text-sm font-semibold leading-snug">{session.name}</p>
           {!expanded && (
             <p className="text-xs text-muted-foreground mt-0.5">
@@ -53,10 +52,16 @@ function SessionRow({ session, roomLabel }: { session: Session; roomLabel: strin
             </p>
           )}
         </div>
-        <span className="shrink-0 mt-1 text-muted-foreground">
+
+        {/* Location */}
+        <Badge variant="outline" className="text-xs shrink-0">{roomLabel}</Badge>
+
+        {/* Chevron */}
+        <span className="shrink-0 text-muted-foreground">
           {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </span>
       </button>
+
       {expanded && (
         <div className="border-t px-4 pb-3 pt-1">
           {session.presentations.map((p) => (
@@ -78,29 +83,40 @@ function ParallelSessionsBlock({
   const [expanded, setExpanded] = useState(false)
 
   return (
-    <div className="border rounded-lg bg-card overflow-hidden">
+    <div
+      className="border rounded-lg bg-card overflow-hidden"
+      onClick={() => !expanded && setExpanded(true)}
+    >
       {/* Header */}
       <button
-        className="w-full flex items-center justify-between gap-4 px-4 py-3 text-left hover:bg-muted/40 transition-colors"
-        onClick={() => setExpanded((v) => !v)}
+        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-muted/40 transition-colors"
+        onClick={(e) => { e.stopPropagation(); setExpanded((v) => !v) }}
       >
-        <div className="flex items-center gap-2.5 min-w-0">
-          <LayoutGrid className="h-4 w-4 text-muted-foreground shrink-0" />
+        {/* Time */}
+        <span className="shrink-0 text-xs tabular-nums text-muted-foreground w-24">
+          {group.start}–{group.end}
+        </span>
+
+        {/* Label */}
+        <div className="min-w-0 flex-1 flex items-center gap-2">
+          <LayoutGrid className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
           <div className="min-w-0">
             <p className="text-sm font-semibold">Parallel sessions</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {group.start}–{group.end} · {group.sessions.length} sessions running simultaneously
+            <p className="text-xs text-muted-foreground">
+              {group.sessions.length} sessions running simultaneously
             </p>
           </div>
         </div>
+
+        {/* Chevron */}
         <span className="shrink-0 text-muted-foreground">
           {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </span>
       </button>
 
-      {/* Session pills when collapsed */}
+      {/* Session pills when collapsed — clicking anywhere here also expands */}
       {!expanded && (
-        <div className="px-4 pb-3 flex flex-wrap gap-1.5">
+        <div className="px-4 pb-3 flex flex-wrap gap-1.5 cursor-pointer">
           {group.sessions.map((s) => (
             <span
               key={s.session_id}
@@ -115,7 +131,7 @@ function ParallelSessionsBlock({
 
       {/* Expanded: individual session rows */}
       {expanded && (
-        <div className="border-t divide-y">
+        <div className="border-t divide-y" onClick={(e) => e.stopPropagation()}>
           {group.sessions.map((s) => (
             <div key={s.session_id} className="px-3 py-3">
               <SessionRow
@@ -149,21 +165,21 @@ export default function ListPage() {
             <div className="space-y-3">
               {groups.map((group) => (
                 <div key={`${group.start}|${group.end}`} className="space-y-3">
-                  {/* Special events always shown as banners */}
+                  {/* Special events */}
                   {group.specials.map((e, i) => (
                     <div
                       key={i}
-                      className="rounded-md bg-primary/5 border border-primary/20 px-4 py-3 flex items-center justify-between"
+                      className="rounded-md bg-primary/5 border border-primary/20 px-4 py-3 flex items-center gap-3"
                     >
-                      <span className="font-medium text-sm">{e.name}</span>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground shrink-0 ml-4">
-                        <span>{e.start}–{e.end}</span>
-                        {roomLabelMap.get(e.room_id) && (
-                          <Badge variant="outline" className="text-xs">
-                            {roomLabelMap.get(e.room_id)}
-                          </Badge>
-                        )}
-                      </div>
+                      <span className="shrink-0 text-xs tabular-nums text-muted-foreground w-24">
+                        {e.start}–{e.end}
+                      </span>
+                      <span className="flex-1 font-medium text-sm">{e.name}</span>
+                      {roomLabelMap.get(e.room_id) && (
+                        <Badge variant="outline" className="text-xs shrink-0">
+                          {roomLabelMap.get(e.room_id)}
+                        </Badge>
+                      )}
                     </div>
                   ))}
 
