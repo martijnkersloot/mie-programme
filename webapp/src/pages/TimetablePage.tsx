@@ -1,15 +1,13 @@
 import { useMemo, useState } from 'react'
-import { useParams, Navigate, useNavigate } from 'react-router-dom'
-import { useCalendarApp, ScheduleXCalendar } from '@schedule-x/react'
+import { useNextCalendarApp, ScheduleXCalendar } from '@schedule-x/react'
 import { createViewDay } from '@schedule-x/calendar'
+import type { CalendarEvent } from '@schedule-x/calendar'
 import { useProgramme } from '@/context'
-import { formatDate } from '@/lib/utils'
 import PresentationRow from '@/components/PresentationRow'
 import type { Session } from '@/types'
 import { X } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 
-// Distinct colours per room (index-based)
 const ROOM_COLORS = [
   { main: '#2563eb', container: '#dbeafe', onContainer: '#1e40af' },
   { main: '#0891b2', container: '#cffafe', onContainer: '#164e63' },
@@ -22,76 +20,20 @@ const ROOM_COLORS = [
   { main: '#65a30d', container: '#ecfccb', onContainer: '#3f6212' },
 ]
 
-interface CalendarEventWithSession {
-  id: string
-  title: string
-  start: Temporal.ZonedDateTime
-  end: Temporal.ZonedDateTime
-  calendarId: string
-  _session?: Session
-  _isSpecial?: boolean
+function toZDT(date: string, time: string) {
+  return Temporal.ZonedDateTime.from(`${date}T${time}:00[Europe/Amsterdam]`)
 }
 
-// Inner component so useCalendarApp gets a fresh instance per date
-function DayCalendar({
-  date,
-  events,
-  calendarsConfig,
-  slotMinTime,
-  slotMaxTime,
-  onSessionClick,
-  onNavigate,
-}: {
-  date: string
-  events: CalendarEventWithSession[]
-  calendarsConfig: Record<string, { colorName: string; lightColors: { main: string; container: string; onContainer: string } }>
-  slotMinTime: string
-  slotMaxTime: string
-  onSessionClick: (session: Session) => void
-  onNavigate: (date: string) => void
-}) {
-  const calendar = useCalendarApp({
-    views: [createViewDay()],
-    selectedDate: Temporal.PlainDate.from(date),
-    dayBoundaries: { start: slotMinTime, end: slotMaxTime },
-    events,
-    calendars: calendarsConfig,
-    callbacks: {
-      onEventClick: (event) => {
-        const e = event as unknown as CalendarEventWithSession
-        if (e._session) onSessionClick(e._session)
-      },
-      onRangeUpdate: (range) => {
-        // Sync schedule-x prev/next navigation back to router
-        const newDate = (range.start as unknown as Temporal.ZonedDateTime).toPlainDate().toString()
-        if (newDate !== date) onNavigate(newDate)
-      },
-    },
-  })
-
-  return (
-    <div className="rounded-lg border overflow-hidden">
-      <ScheduleXCalendar calendarApp={calendar} />
-    </div>
-  )
-}
-
-export default function DayPage() {
-  const { date } = useParams<{ date: string }>()
+export default function TimetablePage() {
   const { data } = useProgramme()
-  const navigate = useNavigate()
   const [selectedSession, setSelectedSession] = useState<Session | null>(null)
 
-  const day = useMemo(() => data?.days.find((d) => d.date === date), [data, date])
-
-  // Build room lookup: id → index (for colours)
   const roomIndexMap = useMemo(() => {
     const m = new Map<string, number>()
     data?.rooms.forEach((r, i) => m.set(r.id, i))
     return m
   }, [data])
 
-  // Room lookup: id → label/nickname
   const roomLabelMap = useMemo(() => {
     const m = new Map<string, string>()
     data?.rooms.forEach((r) => m.set(r.id, r.nickname || r.label))
@@ -104,55 +46,70 @@ export default function DayPage() {
       data.rooms.map((room) => {
         const idx = roomIndexMap.get(room.id) ?? 0
         const colors = ROOM_COLORS[idx % ROOM_COLORS.length]
-        return [
-          room.id,
-          { colorName: room.id, lightColors: colors, darkColors: colors },
-        ]
+        return [room.id, { colorName: room.id, lightColors: colors, darkColors: colors }]
       })
     )
   }, [data, roomIndexMap])
 
-  const calendarEvents = useMemo((): CalendarEventWithSession[] => {
-    if (!day || !date) return []
-    const toZDT = (dateStr: string, timeStr: string) =>
-      Temporal.ZonedDateTime.from(`${dateStr}T${timeStr}:00[Europe/Amsterdam]`)
-    return day.events.map((e) => {
-      const base = {
-        id: e.type === 'session' ? e.session_id : `special-${e.start}`,
+  const allEvents = useMemo((): CalendarEvent[] => {
+    if (!data) return []
+    return data.days.flatMap((day) =>
+      day.events.map((e) => ({
+        id: e.type === 'session' ? e.session_id : `special-${day.date}-${e.start}`,
         title: e.name,
-        start: toZDT(date, e.start),
-        end: toZDT(date, e.end),
+        start: toZDT(day.date, e.start),
+        end: toZDT(day.date, e.end),
         calendarId: e.room_id,
-      }
-      if (e.type === 'session') {
-        return { ...base, _session: e }
-      }
-      return { ...base, _isSpecial: true }
-    })
-  }, [day, date])
+        // store session for click handler
+        ...(e.type === 'session' ? { _session: e } : {}),
+      }))
+    )
+  }, [data])
 
   const { slotMinTime, slotMaxTime } = useMemo(() => {
-    if (!day) return { slotMinTime: '08:00', slotMaxTime: '20:00' }
-    const starts = day.events.map((e) => parseInt(e.start))
-    const ends = day.events.map((e) => parseInt(e.end))
-    const minH = Math.max(0, Math.min(...starts) - 1)
-    const maxH = Math.min(24, Math.max(...ends) + 1)
+    if (!data) return { slotMinTime: '08:00', slotMaxTime: '20:00' }
+    const allTimes = data.days.flatMap((d) => d.events)
+    const minH = Math.max(0, Math.min(...allTimes.map((e) => parseInt(e.start))) - 1)
+    const maxH = Math.min(24, Math.max(...allTimes.map((e) => parseInt(e.end))) + 1)
     return {
       slotMinTime: `${String(minH).padStart(2, '0')}:00`,
       slotMaxTime: `${String(maxH).padStart(2, '0')}:00`,
     }
-  }, [day])
+  }, [data])
+
+  const firstDate = data?.days[0]?.date
+  const lastDate = data?.days[data.days.length - 1]?.date
+
+  const calendar = useNextCalendarApp(
+    {
+      views: [createViewDay()],
+      events: allEvents as unknown as CalendarEvent[],
+      calendars: calendarsConfig,
+      dayBoundaries: { start: slotMinTime, end: slotMaxTime },
+      ...(firstDate
+        ? {
+            selectedDate: Temporal.PlainDate.from(firstDate),
+            minDate: Temporal.PlainDate.from(firstDate),
+            maxDate: Temporal.PlainDate.from(lastDate!),
+          }
+        : {}),
+      callbacks: {
+        onEventClick: (event) => {
+          const session = (event as unknown as { _session?: Session })._session
+          if (session) setSelectedSession(session)
+        },
+      },
+    },
+    []
+  )
 
   if (!data) return null
-  if (!day) return <Navigate to={`/day/${data.days[0]?.date}`} replace />
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-4">{formatDate(day.date)}</h2>
-
-      {/* Room legend */}
+      {/* Room colour legend */}
       <div className="flex flex-wrap gap-2 mb-4">
-        {data.rooms.filter((r) => r.id !== 'other' || day.events.some((e) => e.room_id === 'other')).map((room) => {
+        {data.rooms.map((room) => {
           const idx = roomIndexMap.get(room.id) ?? 0
           const color = ROOM_COLORS[idx % ROOM_COLORS.length]
           return (
@@ -161,35 +118,19 @@ export default function DayPage() {
               className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
               style={{ backgroundColor: color.container, color: color.onContainer }}
             >
-              <span
-                className="w-2 h-2 rounded-full shrink-0"
-                style={{ backgroundColor: color.main }}
-              />
+              <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color.main }} />
               {room.nickname || room.label}
             </span>
           )
         })}
       </div>
 
-      {/* Calendar — key forces remount when date changes */}
-      <DayCalendar
-        key={date}
-        date={date!}
-        events={calendarEvents}
-        calendarsConfig={calendarsConfig}
-        slotMinTime={slotMinTime}
-        slotMaxTime={slotMaxTime}
-        onSessionClick={setSelectedSession}
-        onNavigate={(d) => navigate(`/day/${d}`)}
-      />
+      <ScheduleXCalendar calendarApp={calendar} />
 
-      {/* Session detail slide-in panel */}
+      {/* Session detail panel */}
       {selectedSession && (
         <>
-          <div
-            className="fixed inset-0 z-40 bg-black/20"
-            onClick={() => setSelectedSession(null)}
-          />
+          <div className="fixed inset-0 z-40 bg-black/20" onClick={() => setSelectedSession(null)} />
           <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-background border-l shadow-xl flex flex-col">
             <div className="flex items-start justify-between gap-4 p-5 border-b">
               <div>

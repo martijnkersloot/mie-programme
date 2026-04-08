@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { ProgrammeContext } from './context'
 import type { Programme } from './types'
-import DayPage from './pages/DayPage'
+import TimetablePage from './pages/TimetablePage'
+import ListPage from './pages/ListPage'
 import SearchPage from './pages/SearchPage'
-import DayTabs from './components/DayTabs'
+import NavTabs from './components/NavTabs'
 import { Skeleton } from './components/ui/skeleton'
 
 const PROGRAMME_URL =
@@ -13,15 +14,15 @@ const PROGRAMME_URL =
 function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-white sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-3">
-          <h1 className="text-lg font-bold text-primary">MIE 2026</h1>
-          <p className="text-xs text-muted-foreground hidden sm:block">
+      <header className="border-b bg-white sticky top-0 z-10 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 pt-3">
+          <h1 className="text-lg font-bold text-primary leading-none">MIE 2026</h1>
+          <p className="text-xs text-muted-foreground mt-0.5 hidden sm:block">
             Opening the Personal Gate between Technology and Health Care
           </p>
         </div>
         <div className="max-w-7xl mx-auto px-4">
-          <DayTabs />
+          <NavTabs />
         </div>
       </header>
       <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>
@@ -50,16 +51,12 @@ export default function App() {
         if (!r.ok) throw new Error(`HTTP ${r.status}`)
         return r.json()
       })
-      .then((json: Programme) => {
-        setData(json)
-      })
+      .then((json: Programme) => setData(json))
       .catch((err: unknown) => {
         setError(err instanceof Error ? err.message : 'Failed to load programme')
       })
       .finally(() => setLoading(false))
   }, [])
-
-  const firstDate = data?.days[0]?.date ?? '2026-05-25'
 
   return (
     <ProgrammeContext.Provider value={{ data, loading, error }}>
@@ -73,10 +70,11 @@ export default function App() {
           )}
           {!loading && !error && data && (
             <Routes>
-              <Route path="/" element={<Navigate to={`/day/${firstDate}`} replace />} />
-              <Route path="/day/:date" element={<DayPage />} />
+              <Route path="/" element={<Navigate to="/timetable" replace />} />
+              <Route path="/timetable" element={<TimetablePage />} />
+              <Route path="/list" element={<ListPage />} />
               <Route path="/search" element={<SearchPage />} />
-              <Route path="*" element={<Navigate to={`/day/${firstDate}`} replace />} />
+              <Route path="*" element={<Navigate to="/timetable" replace />} />
             </Routes>
           )}
         </Layout>
