@@ -1,1 +1,9 @@
+# Generated data — committed only by GitHub Actions
+data/programme.json
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
 data/programme.json
