@@ -6,7 +6,6 @@ import TimetablePage from './pages/TimetablePage'
 import ListPage from './pages/ListPage'
 import SearchPage from './pages/SearchPage'
 import { Skeleton } from './components/ui/skeleton'
-import { Input } from './components/ui/input'
 import { cn } from './lib/utils'
 import { CalendarDays, List, Menu, Search, X } from 'lucide-react'
 
@@ -19,21 +18,11 @@ function Header() {
   const navigate = useNavigate()
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
-  const [searchValue, setSearchValue] = useState('')
 
   // Close mobile menu on route change
   useEffect(() => {
     setMobileOpen(false)
-    setMobileSearchOpen(false)
   }, [location.pathname])
-
-  const handleSearchChange = (value: string) => {
-    setSearchValue(value)
-    navigate(`/search?q=${encodeURIComponent(value)}`, { replace: location.pathname === '/search' })
-  }
-
-  const handleSearchSubmit = (e: React.FormEvent) => e.preventDefault()
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     cn(
@@ -43,10 +32,11 @@ function Header() {
         : 'text-muted-foreground hover:text-foreground hover:bg-muted'
     )
 
+  const searchActive = location.pathname === '/search'
+
   return (
     <header className="border-b bg-background sticky top-0 z-10 shadow-sm">
       <div className="max-w-7xl mx-auto px-4">
-        {/* Main row */}
         <div className="flex items-center h-14 gap-4">
           {/* Logo */}
           <NavLink to="/" className="shrink-0 font-bold text-primary text-base leading-none">
@@ -59,12 +49,9 @@ function Header() {
               <CalendarDays className="h-3.5 w-3.5" />
               Timetable
             </NavLink>
-            <NavLink
-              to="/list"
-              className={({ isActive }) =>
-                navLinkClass({ isActive: isActive || location.pathname.startsWith('/list') })
-              }
-            >
+            <NavLink to="/list" className={({ isActive }) =>
+              navLinkClass({ isActive: isActive || location.pathname.startsWith('/list') })
+            }>
               <List className="h-3.5 w-3.5" />
               List
             </NavLink>
@@ -72,55 +59,29 @@ function Header() {
 
           <div className="flex-1" />
 
-          {/* Desktop search */}
-          <form onSubmit={handleSearchSubmit} className="hidden md:block">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
-              <Input
-                placeholder="Search sessions…"
-                value={searchValue}
-                onChange={(e) => handleSearchChange(e.target.value)}
-                className="pl-8 w-56 h-9 text-sm"
-              />
-            </div>
-          </form>
+          {/* Search icon (all screen sizes) */}
+          <button
+            onClick={() => navigate('/search')}
+            className={cn(
+              'p-1.5 rounded-md transition-colors',
+              searchActive
+                ? 'bg-primary/10 text-primary'
+                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+            )}
+            aria-label="Search"
+          >
+            <Search className="h-5 w-5" />
+          </button>
 
-          {/* Mobile: search + hamburger */}
-          <div className="flex md:hidden items-center gap-2">
-            <button
-              onClick={() => { setMobileSearchOpen((v) => !v); setMobileOpen(false) }}
-              className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-              aria-label="Search"
-            >
-              <Search className="h-5 w-5" />
-            </button>
-            <button
-              onClick={() => { setMobileOpen((v) => !v); setMobileSearchOpen(false) }}
-              className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-              aria-label="Menu"
-            >
-              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
-          </div>
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setMobileOpen((v) => !v)}
+            className="md:hidden p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            aria-label="Menu"
+          >
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
-
-        {/* Mobile search bar */}
-        {mobileSearchOpen && (
-          <div className="md:hidden pb-3">
-            <form onSubmit={handleSearchSubmit}>
-              <div className="relative">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
-                <Input
-                  autoFocus
-                  placeholder="Search sessions…"
-                  value={searchValue}
-                  onChange={(e) => handleSearchChange(e.target.value)}
-                  className="pl-8 h-9 text-sm"
-                />
-              </div>
-            </form>
-          </div>
-        )}
 
         {/* Mobile nav menu */}
         {mobileOpen && (
@@ -129,12 +90,9 @@ function Header() {
               <CalendarDays className="h-4 w-4" />
               Timetable
             </NavLink>
-            <NavLink
-              to="/list"
-              className={({ isActive }) =>
-                navLinkClass({ isActive: isActive || location.pathname.startsWith('/list') })
-              }
-            >
+            <NavLink to="/list" className={({ isActive }) =>
+              navLinkClass({ isActive: isActive || location.pathname.startsWith('/list') })
+            }>
               <List className="h-4 w-4" />
               List
             </NavLink>
