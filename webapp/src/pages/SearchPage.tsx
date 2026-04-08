@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useProgramme } from '@/context'
 import { formatDateShort } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
@@ -27,7 +27,13 @@ interface SearchResult {
 export default function SearchPage() {
   const { data } = useProgramme()
   const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
   const [query, setQuery] = useState(() => searchParams.get('q') ?? '')
+
+  const handleQueryChange = (value: string) => {
+    setQuery(value)
+    navigate(`/search?q=${encodeURIComponent(value)}`, { replace: true })
+  }
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all')
   const [dayFilter, setDayFilter] = useState<DayFilter>('all')
 
@@ -73,7 +79,7 @@ export default function SearchPage() {
             autoFocus
             placeholder="Search by title or presenter…"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => handleQueryChange(e.target.value)}
             className="pl-8"
           />
         </div>

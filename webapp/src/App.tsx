@@ -28,12 +28,12 @@ function Header() {
     setMobileSearchOpen(false)
   }, [location.pathname])
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (searchValue.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchValue.trim())}`)
-    }
+  const handleSearchChange = (value: string) => {
+    setSearchValue(value)
+    navigate(`/search?q=${encodeURIComponent(value)}`, { replace: location.pathname === '/search' })
   }
+
+  const handleSearchSubmit = (e: React.FormEvent) => e.preventDefault()
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     cn(
@@ -79,7 +79,7 @@ function Header() {
               <Input
                 placeholder="Search sessions…"
                 value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 className="pl-8 w-56 h-9 text-sm"
               />
             </div>
@@ -114,7 +114,7 @@ function Header() {
                   autoFocus
                   placeholder="Search sessions…"
                   value={searchValue}
-                  onChange={(e) => setSearchValue(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   className="pl-8 h-9 text-sm"
                 />
               </div>
