@@ -1,101 +1,170 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useParams, Navigate } from 'react-router-dom'
+import FullCalendar from '@fullcalendar/react'
+import resourceTimelinePlugin from '@fullcalendar/resource-timeline'
+import interactionPlugin from '@fullcalendar/interaction'
+import type { EventClickArg, EventContentArg } from '@fullcalendar/core'
 import { useProgramme } from '@/context'
 import { formatDate } from '@/lib/utils'
-import SessionCard from '@/components/SessionCard'
-import type { Event, Session, SpecialEvent } from '@/types'
+import PresentationRow from '@/components/PresentationRow'
+import type { Session } from '@/types'
+import { X } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
 
-interface TimeSlot {
-  start: string
-  end: string
-  events: Event[]
-}
-
-function groupByTimeSlot(events: Event[]): TimeSlot[] {
-  const map = new Map<string, TimeSlot>()
-  for (const event of events) {
-    const key = `${event.start}-${event.end}`
-    if (!map.has(key)) {
-      map.set(key, { start: event.start, end: event.end, events: [] })
-    }
-    map.get(key)!.events.push(event)
-  }
-  return Array.from(map.values()).sort((a, b) => a.start.localeCompare(b.start))
+function toISO(date: string, time: string) {
+  return `${date}T${time}:00`
 }
 
 export default function DayPage() {
   const { date } = useParams<{ date: string }>()
   const { data } = useProgramme()
+  const [selectedSession, setSelectedSession] = useState<Session | null>(null)
 
   const day = useMemo(() => data?.days.find((d) => d.date === date), [data, date])
-  const timeSlots = useMemo(() => (day ? groupByTimeSlot(day.events) : []), [day])
+
+  const resources = useMemo(() => {
+    if (!day) return []
+    const seen = new Set<string>()
+    const result: { id: string; title: string }[] = [
+      { id: '__programme__', title: 'Programme' },
+    ]
+    for (const e of day.events) {
+      if (e.type === 'session') {
+        const id = e.room_name || e.room
+        if (!seen.has(id)) {
+          seen.add(id)
+          result.push({ id, title: id })
+        }
+      }
+    }
+    return result
+  }, [day])
+
+  const events = useMemo(() => {
+    if (!day) return []
+    return day.events.map((e) => {
+      if (e.type === 'special') {
+        return {
+          id: `special-${e.start}`,
+          resourceId: '__programme__',
+          title: e.name,
+          start: toISO(day.date, e.start),
+          end: toISO(day.date, e.end),
+          display: 'block' as const,
+          backgroundColor: 'hsl(221.2 83.2% 53.3% / 0.12)',
+          borderColor: 'hsl(221.2 83.2% 53.3% / 0.3)',
+          textColor: 'hsl(221.2 83.2% 40%)',
+          extendedProps: { isSpecial: true },
+        }
+      }
+      return {
+        id: e.session_id,
+        resourceId: e.room_name || e.room,
+        title: e.name,
+        start: toISO(day.date, e.start),
+        end: toISO(day.date, e.end),
+        extendedProps: { session: e, sessionId: e.session_id },
+      }
+    })
+  }, [day])
+
+  // Determine slot range from data
+  const { slotMinTime, slotMaxTime } = useMemo(() => {
+    if (!day) return { slotMinTime: '08:00:00', slotMaxTime: '20:00:00' }
+    const times = day.events.map((e) => e.start)
+    const ends = day.events.map((e) => e.end)
+    const minH = Math.max(0, Math.floor(Math.min(...times.map((t) => parseInt(t))) - 0))
+    const maxH = Math.min(24, Math.ceil(Math.max(...ends.map((t) => parseInt(t))) + 1))
+    return {
+      slotMinTime: `${String(minH).padStart(2, '0')}:00:00`,
+      slotMaxTime: `${String(maxH).padStart(2, '0')}:00:00`,
+    }
+  }, [day])
+
+  const handleEventClick = (arg: EventClickArg) => {
+    const session = arg.event.extendedProps.session as Session | undefined
+    if (session) setSelectedSession(session)
+  }
+
+  const renderEventContent = (arg: EventContentArg) => {
+    const sessionId = arg.event.extendedProps.sessionId as string | undefined
+    return (
+      <div className="px-1.5 py-1 overflow-hidden h-full">
+        {sessionId && (
+          <p className="text-[10px] font-semibold opacity-70 leading-none mb-0.5 uppercase tracking-wide">
+            {sessionId}
+          </p>
+        )}
+        <p className="text-xs font-semibold leading-snug line-clamp-2">{arg.event.title}</p>
+      </div>
+    )
+  }
 
   if (!data) return null
   if (!day) return <Navigate to={`/day/${data.days[0]?.date}`} replace />
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-6">{formatDate(day.date)}</h2>
+      <h2 className="text-xl font-semibold mb-4">{formatDate(day.date)}</h2>
 
-      <div className="relative">
-        {/* Vertical timeline line */}
-        <div className="absolute left-[4.5rem] top-0 bottom-0 w-px bg-border hidden sm:block" />
-
-        <div className="space-y-0">
-          {timeSlots.map((slot) => {
-            const specials = slot.events.filter((e): e is SpecialEvent => e.type === 'special')
-            const sessions = slot.events.filter((e): e is Session => e.type === 'session')
-
-            return (
-              <div key={`${slot.start}-${slot.end}`} className="flex gap-0 sm:gap-6 mb-6">
-                {/* Time label */}
-                <div className="hidden sm:flex flex-col items-end shrink-0 w-[4.5rem] pt-1">
-                  <span className="text-sm font-semibold text-foreground">{slot.start}</span>
-                  <span className="text-xs text-muted-foreground">{slot.end}</span>
-                </div>
-
-                {/* Dot on the timeline line */}
-                <div className="hidden sm:flex items-start pt-2 shrink-0">
-                  <div className="w-2.5 h-2.5 rounded-full bg-primary border-2 border-background ring-1 ring-primary -ml-[5px] mt-0.5" />
-                </div>
-
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  {/* Mobile time label */}
-                  <div className="sm:hidden mb-2 flex items-center gap-2">
-                    <span className="text-sm font-semibold">{slot.start}</span>
-                    <span className="text-xs text-muted-foreground">– {slot.end}</span>
-                  </div>
-
-                  {specials.map((e, i) => (
-                    <div
-                      key={i}
-                      className="rounded-md bg-primary/5 border border-primary/20 px-4 py-3 flex items-center justify-between mb-3"
-                    >
-                      <span className="font-medium text-sm">{e.name}</span>
-                      <span className="text-sm text-muted-foreground sm:hidden">
-                        {e.start}–{e.end}
-                      </span>
-                    </div>
-                  ))}
-
-                  {sessions.length > 0 && (
-                    <div className="grid gap-3 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-                      {sessions.map((session) => (
-                        <SessionCard
-                          key={session.session_id}
-                          session={session}
-                          showTime={false}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )
-          })}
-        </div>
+      <div className="rounded-lg border overflow-hidden">
+        <FullCalendar
+          plugins={[resourceTimelinePlugin, interactionPlugin]}
+          initialView="resourceTimeline"
+          initialDate={date}
+          headerToolbar={false}
+          resources={resources}
+          events={events}
+          slotMinTime={slotMinTime}
+          slotMaxTime={slotMaxTime}
+          slotDuration="00:30:00"
+          slotLabelInterval="01:00:00"
+          height="auto"
+          resourceAreaWidth="140px"
+          resourceAreaHeaderContent="Room"
+          eventClick={handleEventClick}
+          eventContent={renderEventContent}
+          eventColor="hsl(221.2 83.2% 53.3%)"
+          nowIndicator
+        />
       </div>
+
+      {/* Session detail panel */}
+      {selectedSession && (
+        <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-background border-l shadow-xl flex flex-col">
+          <div className="flex items-start justify-between gap-4 p-5 border-b">
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+                {selectedSession.session_id} &middot; {selectedSession.start}–{selectedSession.end}
+              </p>
+              <h3 className="text-base font-semibold leading-snug">{selectedSession.name}</h3>
+              <Badge variant="outline" className="mt-2 text-xs">
+                {selectedSession.room_name || selectedSession.room}
+              </Badge>
+            </div>
+            <button
+              onClick={() => setSelectedSession(null)}
+              className="shrink-0 p-1 rounded-md hover:bg-muted transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-5">
+            <p className="text-xs text-muted-foreground mb-3 font-medium">
+              {selectedSession.presentations.length} presentation{selectedSession.presentations.length !== 1 ? 's' : ''}
+            </p>
+            {selectedSession.presentations.map((p) => (
+              <PresentationRow key={p.id} presentation={p} />
+            ))}
+          </div>
+        </div>
+      )}
+      {selectedSession && (
+        <div
+          className="fixed inset-0 z-40 bg-black/20"
+          onClick={() => setSelectedSession(null)}
+        />
+      )}
     </div>
   )
 }

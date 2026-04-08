@@ -17,6 +17,8 @@ export interface SpecialEvent {
   name: string
   start: string
   end: string
+  room?: string
+  room_name?: string
 }
 
 export interface Session {
