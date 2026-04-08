@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useProgramme } from '@/context'
 import { formatDateShort } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
@@ -25,7 +26,8 @@ interface SearchResult {
 
 export default function SearchPage() {
   const { data } = useProgramme()
-  const [query, setQuery] = useState('')
+  const [searchParams] = useSearchParams()
+  const [query, setQuery] = useState(() => searchParams.get('q') ?? '')
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all')
   const [dayFilter, setDayFilter] = useState<DayFilter>('all')
 
@@ -62,7 +64,6 @@ export default function SearchPage() {
 
   return (
     <div className="max-w-3xl">
-      <h2 className="text-xl font-semibold mb-4">Search</h2>
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
