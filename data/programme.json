@@ -406,6 +406,13 @@
           "room_id": "room-7",
           "start": "16:30",
           "end": "18:00"
+        },
+        {
+          "type": "special",
+          "name": "Welcome Party",
+          "room_id": null,
+          "start": "18:00",
+          "end": "19:00"
         }
       ]
     },
@@ -887,6 +894,13 @@
           ]
         },
         {
+          "type": "special",
+          "name": "Coffee Break + Poster 1",
+          "room_id": "other",
+          "start": "11:00",
+          "end": "11:30"
+        },
+        {
           "type": "session",
           "session_id": "Session A3",
           "name": "AI in Medicine 4",
@@ -1317,6 +1331,13 @@
               "title": "Assurance-Driven Certification of Medical Devices Using Synthetic Datasets: Demonstrating INSAFEDARE Tools"
             }
           ]
+        },
+        {
+          "type": "special",
+          "name": "Lunch + Poster 1",
+          "room_id": "other",
+          "start": "13:00",
+          "end": "14:00"
         },
         {
           "type": "session",
@@ -2226,6 +2247,13 @@
               "title": "AI in Health and Biomedical Assessment: To Ban or to Embrace?"
             }
           ]
+        },
+        {
+          "type": "special",
+          "name": "Gala Dinner",
+          "room_id": "other",
+          "start": "20:30",
+          "end": "23:59"
         }
       ]
     },
@@ -2685,6 +2713,13 @@
           ]
         },
         {
+          "type": "special",
+          "name": "Coffee Break + Poster 2",
+          "room_id": "other",
+          "start": "11:00",
+          "end": "11:30"
+        },
+        {
           "type": "session",
           "session_id": "Session A7",
           "name": "AI in Medicine 11",
@@ -3089,6 +3124,13 @@
           ]
         },
         {
+          "type": "special",
+          "name": "Lunch + Poster 2",
+          "room_id": "other",
+          "start": "13:00",
+          "end": "14:00"
+        },
+        {
           "type": "session",
           "session_id": "Session De13",
           "name": "Demo 13",
@@ -3192,54 +3234,6 @@
               "type": "Short communication",
               "presenter": "Yingwei Yang",
               "title": "Lightweight Medical Image Segmentation with UNet Architecture"
-            },
-            {
-              "id": 372,
-              "type": "Full paper",
-              "presenter": "Jonas Hügel",
-              "title": "Effects of Non-IID Distributions in Lung Cancer Data on Survival Prediction with Federated Ensemble Learning"
-            },
-            {
-              "id": 381,
-              "type": "Full paper",
-              "presenter": "Lydia González Cid",
-              "title": "Characterizing Real-World Data by Care Setting to Support Clinical Research"
-            },
-            {
-              "id": 402,
-              "type": "Full paper",
-              "presenter": "Sofia Backåberg, Gunilla Elmgren Frykberg",
-              "title": "Developing an AI-trained movement screening tool, based on Skeleton Avatar Technique, to evaluate and promote sustainable physical functioning in daily life"
-            },
-            {
-              "id": 483,
-              "type": "Full paper",
-              "presenter": "Julia Ive",
-              "title": "Automated Machine Learning Approaches for Surgery Duration Prediction in Orthopaedics"
-            },
-            {
-              "id": 582,
-              "type": "Full paper",
-              "presenter": "Hamidreza Maharlou",
-              "title": "Integrating Anomaly Detection and LLM-Based Explanation Generation in Clinical Data Dashboards"
-            },
-            {
-              "id": 597,
-              "type": "Full paper",
-              "presenter": "Nikolaus Ballenberger",
-              "title": "Distinguishing Pain and No Pain in Musicians through Machine Learning Analysis of Muskuloskelettal Data"
-            },
-            {
-              "id": 648,
-              "type": "Full paper",
-              "presenter": "Robert-Leonard Bernad",
-              "title": "AI and Digital-Twin Synergy for Field Optimisation for Targeted Drug Delivery"
-            },
-            {
-              "id": 702,
-              "type": "Full paper",
-              "presenter": "Pietro Bosoni",
-              "title": "Environmental Personal Exposure Clusters to Investigate Multiple Sclerosis and Amyotrophic Lateral Sclerosis Progression"
             }
           ]
         },
@@ -3310,54 +3304,6 @@
               "type": "Short communication",
               "presenter": "Syed Abrar Ahmed",
               "title": "Leveraging Distributed Ledger Technology for Patient Opt-Out Management in the context of the European Health Data Space"
-            },
-            {
-              "id": 614,
-              "type": "Full paper",
-              "presenter": "Johannes Oehm",
-              "title": "DicomShield: A Pseudonymization Proxy for the Secondary Use of Imaging Data in the Research Context"
-            },
-            {
-              "id": 748,
-              "type": "Full paper",
-              "presenter": "Sankatha Bamunuge",
-              "title": "Annotation-Driven Middleware for Laboratory Data Exchange: Building Federated and Equitable Health Information Systems"
-            },
-            {
-              "id": 756,
-              "type": "Full paper",
-              "presenter": "Cecilia Mascia",
-              "title": "A FHIR Consent Profile for European Research Biobanks"
-            },
-            {
-              "id": 766,
-              "type": "Full paper",
-              "presenter": "Tobechi Obinwanne",
-              "title": "FAIRification on Trial? A Provenance and Reproducible Metadata Build Pipeline for Clinical Research"
-            },
-            {
-              "id": 777,
-              "type": "Full paper",
-              "presenter": "Kailesh Bansi",
-              "title": "From Discoverable to Fit-For-Purpose"
-            },
-            {
-              "id": 821,
-              "type": "Full paper",
-              "presenter": "Johnson Bankole",
-              "title": "Timely, AQL-Driven Clinical Cohort Identification in openEHR Infrastructures"
-            },
-            {
-              "id": 854,
-              "type": "Full paper",
-              "presenter": "Patrick Mangesius",
-              "title": "A user-centered UX design approach for consenting secondary use of patient data"
-            },
-            {
-              "id": 719,
-              "type": "Full paper",
-              "presenter": "Jori Kern",
-              "title": "DataCastle : A pragmatic approach for research and real-world data management"
             }
           ]
         },
@@ -3416,60 +3362,6 @@
               "type": "Full paper",
               "presenter": "Naren Katwani",
               "title": "Relational Graph Convolutional Network with BERT Embeddings for Ontology Relationship Classification"
-            },
-            {
-              "id": 182,
-              "type": "Full paper",
-              "presenter": "Jamil Zaghir",
-              "title": "The Limits of Generalization: Zero-Shot French Medical NER using French, English and Multilingual GLiNER Models"
-            },
-            {
-              "id": 195,
-              "type": "Full paper",
-              "presenter": "Giovanni Paolo Tobia",
-              "title": "A Real-Time Clinical Text Information Extractor via LLM"
-            },
-            {
-              "id": 224,
-              "type": "Full paper",
-              "presenter": "Xuefei Ding",
-              "title": "Enhancing Ontology Engineering with Large Language Models: A Stage-Wise Human-in-the-Loop Study"
-            },
-            {
-              "id": 227,
-              "type": "Full paper",
-              "presenter": "Corentin FAUJOUR",
-              "title": "Evaluating the Role of Order and Time information for Classifying Sequences of Healthcare Events Derived from Claims Data"
-            },
-            {
-              "id": 290,
-              "type": "Full paper",
-              "presenter": "Mihai Horia Popescu",
-              "title": "A Two-Stage Pipeline for Linking Clinical Notes to SNOMED CT"
-            },
-            {
-              "id": 294,
-              "type": "Full paper",
-              "presenter": "Giovanna Nicora",
-              "title": "Evaluating Open and Accessible Visual Language Models for Optical Character Recognition in Clinical Case Report Forms"
-            },
-            {
-              "id": 358,
-              "type": "Full paper",
-              "presenter": "Amir Sorayaie Azar",
-              "title": "Explainable multitask transformers for early detection of smoking behaviors and lung cancer symptoms from Danish electronic health records"
-            },
-            {
-              "id": 438,
-              "type": "Short communication",
-              "presenter": "Maurice Walny",
-              "title": "Extracting Clinical Recommendations from Oncology Guidelines: An Exploratory Comparison of Automated Approaches"
-            },
-            {
-              "id": 502,
-              "type": "Short communication",
-              "presenter": "Takashi YAMAMOTO",
-              "title": "Assessing Clinical Decision-Making Aided by a RAG-based Dialog in Pre-examination on Non-Odontogenic Tooth Pain"
             }
           ]
         },
@@ -3540,7 +3432,258 @@
               "type": "Short communication",
               "presenter": "Morten Hasselstrøm Jensen",
               "title": "A Prediction Model for Cardiovascular Death in Individuals with Prediabetes"
+            }
+          ]
+        },
+        {
+          "type": "session",
+          "session_id": "Session W16",
+          "name": "Workshop 16",
+          "room_id": "room-6",
+          "start": "15:00",
+          "end": "16:30",
+          "presentations": [
+            {
+              "id": 906,
+              "type": "Workshop",
+              "presenter": "Sylvia Thun, Sophie Anne Ines Klopfenstein",
+              "title": "Metadata Schemas to Facilitate Reuse of Health Data in Research: Towards Aligning National Infrastructures Across Europe"
+            }
+          ]
+        },
+        {
+          "type": "session",
+          "session_id": "Session W17",
+          "name": "Workshop 17",
+          "room_id": "room-7",
+          "start": "15:00",
+          "end": "16:30",
+          "presentations": [
+            {
+              "id": 946,
+              "type": "Workshop",
+              "presenter": "Sebastian Stäubert",
+              "title": "Enabling Interoperable Medical Research with FHIR: Tools, Challenges, and Collaborative Opportunities"
             },
+            {
+              "id": 922,
+              "type": "Panel",
+              "presenter": "Donghua Tao",
+              "title": "Leadership Development for Women in Medical Informatics: Perspectives across Regions and Contexts"
+            }
+          ]
+        },
+        {
+          "type": "special",
+          "name": "EFMI NI GA (Private Event)",
+          "room_id": "room-5",
+          "start": "15:00",
+          "end": "16:30"
+        },
+        {
+          "type": "session",
+          "session_id": "Session T4",
+          "name": "Tutorial 4",
+          "room_id": "main-hall",
+          "start": "15:00",
+          "end": "18:00",
+          "presentations": [
+            {
+              "id": 910,
+              "type": "Tutorial",
+              "presenter": "Stefano Brini",
+              "title": "Rapid Evidence to Decision for Public Health Emergencies: Modern Meta Analysis and AI Accelerated Systematic Reviews"
+            }
+          ]
+        },
+        {
+          "type": "session",
+          "session_id": "Session A9",
+          "name": "AI in Medicine 15",
+          "room_id": "room-1",
+          "start": "17:00",
+          "end": "18:30",
+          "presentations": [
+            {
+              "id": 372,
+              "type": "Full paper",
+              "presenter": "Jonas Hügel",
+              "title": "Effects of Non-IID Distributions in Lung Cancer Data on Survival Prediction with Federated Ensemble Learning"
+            },
+            {
+              "id": 381,
+              "type": "Full paper",
+              "presenter": "Lydia González Cid",
+              "title": "Characterizing Real-World Data by Care Setting to Support Clinical Research"
+            },
+            {
+              "id": 402,
+              "type": "Full paper",
+              "presenter": "Sofia Backåberg, Gunilla Elmgren Frykberg",
+              "title": "Developing an AI-trained movement screening tool, based on Skeleton Avatar Technique, to evaluate and promote sustainable physical functioning in daily life"
+            },
+            {
+              "id": 483,
+              "type": "Full paper",
+              "presenter": "Julia Ive",
+              "title": "Automated Machine Learning Approaches for Surgery Duration Prediction in Orthopaedics"
+            },
+            {
+              "id": 582,
+              "type": "Full paper",
+              "presenter": "Hamidreza Maharlou",
+              "title": "Integrating Anomaly Detection and LLM-Based Explanation Generation in Clinical Data Dashboards"
+            },
+            {
+              "id": 597,
+              "type": "Full paper",
+              "presenter": "Nikolaus Ballenberger",
+              "title": "Distinguishing Pain and No Pain in Musicians through Machine Learning Analysis of Muskuloskelettal Data"
+            },
+            {
+              "id": 648,
+              "type": "Full paper",
+              "presenter": "Robert-Leonard Bernad",
+              "title": "AI and Digital-Twin Synergy for Field Optimisation for Targeted Drug Delivery"
+            },
+            {
+              "id": 702,
+              "type": "Full paper",
+              "presenter": "Pietro Bosoni",
+              "title": "Environmental Personal Exposure Clusters to Investigate Multiple Sclerosis and Amyotrophic Lateral Sclerosis Progression"
+            }
+          ]
+        },
+        {
+          "type": "session",
+          "session_id": "Session B9",
+          "name": "Infrastructures and Regulations 9",
+          "room_id": "room-2",
+          "start": "17:00",
+          "end": "18:30",
+          "presentations": [
+            {
+              "id": 614,
+              "type": "Full paper",
+              "presenter": "Johannes Oehm",
+              "title": "DicomShield: A Pseudonymization Proxy for the Secondary Use of Imaging Data in the Research Context"
+            },
+            {
+              "id": 748,
+              "type": "Full paper",
+              "presenter": "Sankatha Bamunuge",
+              "title": "Annotation-Driven Middleware for Laboratory Data Exchange: Building Federated and Equitable Health Information Systems"
+            },
+            {
+              "id": 756,
+              "type": "Full paper",
+              "presenter": "Cecilia Mascia",
+              "title": "A FHIR Consent Profile for European Research Biobanks"
+            },
+            {
+              "id": 766,
+              "type": "Full paper",
+              "presenter": "Tobechi Obinwanne",
+              "title": "FAIRification on Trial? A Provenance and Reproducible Metadata Build Pipeline for Clinical Research"
+            },
+            {
+              "id": 777,
+              "type": "Full paper",
+              "presenter": "Kailesh Bansi",
+              "title": "From Discoverable to Fit-For-Purpose"
+            },
+            {
+              "id": 821,
+              "type": "Full paper",
+              "presenter": "Johnson Bankole",
+              "title": "Timely, AQL-Driven Clinical Cohort Identification in openEHR Infrastructures"
+            },
+            {
+              "id": 854,
+              "type": "Full paper",
+              "presenter": "Patrick Mangesius",
+              "title": "A user-centered UX design approach for consenting secondary use of patient data"
+            },
+            {
+              "id": 719,
+              "type": "Full paper",
+              "presenter": "Jori Kern",
+              "title": "DataCastle : A pragmatic approach for research and real-world data management"
+            }
+          ]
+        },
+        {
+          "type": "session",
+          "session_id": "Session C9",
+          "name": "AI in Medicine 16",
+          "room_id": "room-3",
+          "start": "17:00",
+          "end": "18:30",
+          "presentations": [
+            {
+              "id": 182,
+              "type": "Full paper",
+              "presenter": "Jamil Zaghir",
+              "title": "The Limits of Generalization: Zero-Shot French Medical NER using French, English and Multilingual GLiNER Models"
+            },
+            {
+              "id": 195,
+              "type": "Full paper",
+              "presenter": "Giovanni Paolo Tobia",
+              "title": "A Real-Time Clinical Text Information Extractor via LLM"
+            },
+            {
+              "id": 224,
+              "type": "Full paper",
+              "presenter": "Xuefei Ding",
+              "title": "Enhancing Ontology Engineering with Large Language Models: A Stage-Wise Human-in-the-Loop Study"
+            },
+            {
+              "id": 227,
+              "type": "Full paper",
+              "presenter": "Corentin FAUJOUR",
+              "title": "Evaluating the Role of Order and Time information for Classifying Sequences of Healthcare Events Derived from Claims Data"
+            },
+            {
+              "id": 290,
+              "type": "Full paper",
+              "presenter": "Mihai Horia Popescu",
+              "title": "A Two-Stage Pipeline for Linking Clinical Notes to SNOMED CT"
+            },
+            {
+              "id": 294,
+              "type": "Full paper",
+              "presenter": "Giovanna Nicora",
+              "title": "Evaluating Open and Accessible Visual Language Models for Optical Character Recognition in Clinical Case Report Forms"
+            },
+            {
+              "id": 358,
+              "type": "Full paper",
+              "presenter": "Amir Sorayaie Azar",
+              "title": "Explainable multitask transformers for early detection of smoking behaviors and lung cancer symptoms from Danish electronic health records"
+            },
+            {
+              "id": 438,
+              "type": "Short communication",
+              "presenter": "Maurice Walny",
+              "title": "Extracting Clinical Recommendations from Oncology Guidelines: An Exploratory Comparison of Automated Approaches"
+            },
+            {
+              "id": 502,
+              "type": "Short communication",
+              "presenter": "Takashi YAMAMOTO",
+              "title": "Assessing Clinical Decision-Making Aided by a RAG-based Dialog in Pre-examination on Non-Odontogenic Tooth Pain"
+            }
+          ]
+        },
+        {
+          "type": "session",
+          "session_id": "Session D9",
+          "name": "AI in Medicine 17",
+          "room_id": "room-4",
+          "start": "17:00",
+          "end": "18:30",
+          "presentations": [
             {
               "id": 499,
               "type": "Full paper",
@@ -3599,18 +3742,12 @@
         },
         {
           "type": "session",
-          "session_id": "Session W16",
-          "name": "Workshop 16",
+          "session_id": "Session W18",
+          "name": "Workshop 18",
           "room_id": "room-6",
-          "start": "15:00",
-          "end": "16:30",
+          "start": "17:00",
+          "end": "18:30",
           "presentations": [
-            {
-              "id": 906,
-              "type": "Workshop",
-              "presenter": "Sylvia Thun, Sophie Anne Ines Klopfenstein",
-              "title": "Metadata Schemas to Facilitate Reuse of Health Data in Research: Towards Aligning National Infrastructures Across Europe"
-            },
             {
               "id": 876,
               "type": "Workshop",
@@ -3626,61 +3763,16 @@
           ]
         },
         {
-          "type": "session",
-          "session_id": "Session W17",
-          "name": "Workshop 17",
-          "room_id": "room-7",
-          "start": "15:00",
-          "end": "16:30",
-          "presentations": [
-            {
-              "id": 946,
-              "type": "Workshop",
-              "presenter": "Sebastian Stäubert",
-              "title": "Enabling Interoperable Medical Research with FHIR: Tools, Challenges, and Collaborative Opportunities"
-            },
-            {
-              "id": 922,
-              "type": "Panel",
-              "presenter": "Donghua Tao",
-              "title": "Leadership Development for Women in Medical Informatics: Perspectives across Regions and Contexts"
-            }
-          ]
-        },
-        {
           "type": "special",
-          "name": "EFMI NI GA (Private Event)",
+          "name": "EFMI Institutional Member Meeting (Private Event)",
           "room_id": "room-5",
-          "start": "15:00",
-          "end": "16:30"
-        },
-        {
-          "type": "session",
-          "session_id": "Session T4",
-          "name": "Tutorial 4",
-          "room_id": "main-hall",
-          "start": "15:00",
-          "end": "18:00",
-          "presentations": [
-            {
-              "id": 910,
-              "type": "Tutorial",
-              "presenter": "Stefano Brini",
-              "title": "Rapid Evidence to Decision for Public Health Emergencies: Modern Meta Analysis and AI Accelerated Systematic Reviews"
-            }
-          ]
-        },
-        {
-          "type": "special",
-          "name": "27/05/2026 (17:00-18:30)",
-          "room_id": "room-1",
           "start": "17:00",
           "end": "18:30"
         },
         {
           "type": "special",
-          "name": "(Private Event)",
-          "room_id": "room-5",
+          "name": "Young EFMI Lead 3",
+          "room_id": "room-7",
           "start": "17:00",
           "end": "18:30"
         },
@@ -3816,6 +3908,13 @@
               "title": "Leading through change and uncertainty to open the gate for digital transformation"
             }
           ]
+        },
+        {
+          "type": "special",
+          "name": "Young EFMI Event",
+          "room_id": "other",
+          "start": "20:30",
+          "end": "23:59"
         }
       ]
     },
@@ -4421,6 +4520,676 @@
           "room_id": "room-7",
           "start": "10:30",
           "end": "11:00"
+        },
+        {
+          "type": "special",
+          "name": "Coffee break",
+          "room_id": "other",
+          "start": "11:00",
+          "end": "11:30"
+        },
+        {
+          "type": "session",
+          "session_id": "Session A11",
+          "name": "Infrastructures and Regulations 12",
+          "room_id": "main-hall",
+          "start": "11:30",
+          "end": "13:00",
+          "presentations": [
+            {
+              "id": 492,
+              "type": "Full paper",
+              "presenter": "Laura-Maria Peltonen",
+              "title": "Healthcare Professionals’ Concerns About Digital Transformation During Public Health Crises: A Multinational Analysis"
+            },
+            {
+              "id": 640,
+              "type": "Full paper",
+              "presenter": "Annika Hering",
+              "title": "Developing a Guideline for IT Outage Management in Hospitals: A Practice-Oriented Approach"
+            },
+            {
+              "id": 689,
+              "type": "Full paper",
+              "presenter": "Jeeva Sam",
+              "title": "Towards FAIR Clinical Registries: A Privacy-by-Design Framework for Migrating Legacy Document-Based Clinical Reports to REDCap"
+            },
+            {
+              "id": 698,
+              "type": "Full paper",
+              "presenter": "Philip Zaschke",
+              "title": "The Somnolink-Hub: A Central Infrastructure that Unites Sleep Data at Point of Care"
+            },
+            {
+              "id": 795,
+              "type": "Full paper",
+              "presenter": "Evdokimos Konstantinidis",
+              "title": "Healthcare Professionals’ Perspectives on Technology in Transitional Care: Insights from Greece"
+            },
+            {
+              "id": 807,
+              "type": "Full paper",
+              "presenter": "Bry SYLLA",
+              "title": "Implementing an open source Hospital Information System: Lessons from the OpenClinic GA pilot in Burkina Faso."
+            },
+            {
+              "id": 826,
+              "type": "Full paper",
+              "presenter": "Lene Baagøe Laukvik",
+              "title": "Time to Care-AI supported nursing documentation"
+            },
+            {
+              "id": 832,
+              "type": "Full paper",
+              "presenter": "Haythem Nakkas",
+              "title": "Digital Health Adoption in Laboratory Services in Libya: Patient and Staff Perspectives Using an Extended UTAUT Framework"
+            }
+          ]
+        },
+        {
+          "type": "session",
+          "session_id": "Session B11",
+          "name": "AI in Medicine 22",
+          "room_id": "room-1",
+          "start": "11:30",
+          "end": "13:00",
+          "presentations": [
+            {
+              "id": 604,
+              "type": "Full paper",
+              "presenter": "Helena Lindgren",
+              "title": "Experts' Perception of AI-Generated Personalised Stories for Health Promotion"
+            },
+            {
+              "id": 628,
+              "type": "Full paper",
+              "presenter": "Giulia Carpani",
+              "title": "Identifying Clinical Predictors of Diabetes and Prediabetes: An Explainable AI Approach Using Primary Care Electronic Medical Records"
+            },
+            {
+              "id": 639,
+              "type": "Full paper",
+              "presenter": "Omid Pournik",
+              "title": "A Hybrid Delphi-Inspired Expert–LLM Workflow for Efficient Evidence Screening in Systematic Reviews"
+            },
+            {
+              "id": 703,
+              "type": "Full paper",
+              "presenter": "Alessia Papale",
+              "title": "How AI Agreement Shapes Confidence: Evidence Across Clinical Skill Levels"
+            },
+            {
+              "id": 739,
+              "type": "Full paper",
+              "presenter": "Heimar Marin",
+              "title": "Artificial Intelligence: The use and application by Brazilian healthcare professionals"
+            },
+            {
+              "id": 749,
+              "type": "Full paper",
+              "presenter": "Andre Kushniruk",
+              "title": "Building Relationships: A Scoping Review of Empathy in Human- Robot Interaction"
+            },
+            {
+              "id": 757,
+              "type": "Full paper",
+              "presenter": "María González López",
+              "title": "PROSODIC: Predictive Intelligence for Secondary Prevention of Youth Suicide"
+            }
+          ]
+        },
+        {
+          "type": "session",
+          "session_id": "Session C11",
+          "name": "AI in Medicine 23",
+          "room_id": "room-2",
+          "start": "11:30",
+          "end": "13:00",
+          "presentations": [
+            {
+              "id": 737,
+              "type": "Full paper",
+              "presenter": "Simone Rancati",
+              "title": "Machine Learning Prediction of Growth Hormone Response in Children Non-Growth Hormone-Deficient Short Stature"
+            },
+            {
+              "id": 754,
+              "type": "Full paper",
+              "presenter": "Rami Albadri",
+              "title": "Designing an Interoperable Intelligent Agent for the Blood Transfusion Chain in Geneva, Switzerland"
+            },
+            {
+              "id": 763,
+              "type": "Full paper",
+              "presenter": "Leonhard Hauptfeld",
+              "title": "Knowledge-Based Interpretation of Multi-Modal Clinical Findings: Evaluating a Local Agentic Bridge Between Worlds"
+            },
+            {
+              "id": 769,
+              "type": "Full paper",
+              "presenter": "Elena Bernad, Brenda Cristiana BERNAD",
+              "title": "Physics-Informed Digital Twin of Maternal–Fetal Hemodynamics for Predictive Risk Simulation in Preeclampsia"
+            },
+            {
+              "id": 772,
+              "type": "Full paper",
+              "presenter": "Alexis Baudin",
+              "title": "Explainable framework for ontology-based similarity: a use case on SNOMED CT"
+            },
+            {
+              "id": 774,
+              "type": "Full paper",
+              "presenter": "Sara Alrashed",
+              "title": "Challenges Faced by People with Depression Using AI Chatbots in Saudi Arabia"
+            },
+            {
+              "id": 784,
+              "type": "Full paper",
+              "presenter": "Daniel Neumann",
+              "title": "Detecting Contraindications in Routinely Collected Healthcare Data to Emulate Decision Support for Medication Reviews"
+            },
+            {
+              "id": 830,
+              "type": "Full paper",
+              "presenter": "Moumouni DJIBO",
+              "title": "Automated Detection of Tuberculosis on Chest X-rays Using Artificial Intelligence"
+            }
+          ]
+        },
+        {
+          "type": "session",
+          "session_id": "Session D11",
+          "name": "AI in Medicine 24",
+          "room_id": "room-3",
+          "start": "11:30",
+          "end": "13:00",
+          "presentations": [
+            {
+              "id": 376,
+              "type": "Full paper",
+              "presenter": "Amaury Fierens",
+              "title": "CACRC-Pan: A Concept Annotated Case Report Corpus and Processing Pipeline for Rare Pancreatic Diseases"
+            },
+            {
+              "id": 389,
+              "type": "Full paper",
+              "presenter": "Eric Hua Qing Zhang, Felix Jozsa",
+              "title": "Building a Silver-Standard Dataset from NICE Guidelines for Clinical LLMs"
+            },
+            {
+              "id": 433,
+              "type": "Full paper",
+              "presenter": "Laura Bergomi",
+              "title": "Extraction of Endoscopic Markers from Clinical Notes in Italian Patients with Autoimmune Atrophic Gastritis using Small Language Models"
+            },
+            {
+              "id": 443,
+              "type": "Full paper",
+              "presenter": "Anthony Yazdani",
+              "title": "CONORM-DEID: Robustness Evaluation of a Multilingual De- Identification System for Clinical Texts"
+            },
+            {
+              "id": 454,
+              "type": "Full paper",
+              "presenter": "Bram van Dijk",
+              "title": "OpenExtract: Automated Data Extraction for Systematic Reviews in Health"
+            },
+            {
+              "id": 498,
+              "type": "Full paper",
+              "presenter": "Adel Bensahla",
+              "title": "Generating Human-Readable Labels for SNOMED CT Expressions with LLMs: A Study on Model Performance and Rater Subjectivity"
+            },
+            {
+              "id": 516,
+              "type": "Full paper",
+              "presenter": "Indra Neil Sarkar",
+              "title": "THERA-IE: An AI-Enabled System For Therapeutic Indication Identification and Extraction From Biomedical Literature"
+            },
+            {
+              "id": 718,
+              "type": "Full paper",
+              "presenter": "Ahmad Abu Dayeh",
+              "title": "Evidence-Grounded LLM Validation of MIMIC-IV ICD Labels"
+            }
+          ]
+        },
+        {
+          "type": "session",
+          "session_id": "Session E11",
+          "name": "AI in Medicine 25",
+          "room_id": "room-4",
+          "start": "11:30",
+          "end": "13:00",
+          "presentations": [
+            {
+              "id": 482,
+              "type": "Full paper",
+              "presenter": "Brigitte Seroussi",
+              "title": "From Principles to Action: A French Framework for Operationalizing Ethics in Health AI"
+            },
+            {
+              "id": 534,
+              "type": "Full paper",
+              "presenter": "María Zamora-Lorence",
+              "title": "Participatory Assessment of Ethics in AI: a review"
+            },
+            {
+              "id": 551,
+              "type": "Full paper",
+              "presenter": "Meghan Reading Turchioe",
+              "title": "Toward an ethical framework for patient-facing artificial intelligence in clinical settings"
+            },
+            {
+              "id": 656,
+              "type": "Full paper",
+              "presenter": "Carolina Garcia Sanchez",
+              "title": "Mapping existing evidence on physicians’ and patients’ experiences with GenAI in clinical communication and documentation: a rapid review"
+            },
+            {
+              "id": 686,
+              "type": "Full paper",
+              "presenter": "Theodoros N. Arvanitis",
+              "title": "Membership Inference or Data Split Bias? Identifying False Positives in Synthetic Medical Image Privacy Audits"
+            },
+            {
+              "id": 786,
+              "type": "Full paper",
+              "presenter": "Timo Apfelbacher",
+              "title": "Expert Evaluation Of An AI Governance And Ethics Framework Implemented At A University Hospital"
+            },
+            {
+              "id": 808,
+              "type": "Full paper",
+              "presenter": "Bas Luka Hendrik Laan",
+              "title": "Exploring Healthcare Providers' Expectations and Perceptions of AI Machine Learning Decision Tree Models in Healthcare"
+            },
+            {
+              "id": 855,
+              "type": "Full paper",
+              "presenter": "Elisavet Andrikopoulou",
+              "title": "Aligning AI and 6G with EU Ethical and Legal Frameworks for Healthcare"
+            }
+          ]
+        },
+        {
+          "type": "session",
+          "session_id": "Session W22",
+          "name": "Workshop 22",
+          "room_id": "room-5",
+          "start": "11:30",
+          "end": "13:00",
+          "presentations": [
+            {
+              "id": 939,
+              "type": "Workshop",
+              "presenter": "Emmanouil Rigas",
+              "title": "Using Online Marketplaces for Digital Health Interventions Supporting Older Adults"
+            }
+          ]
+        },
+        {
+          "type": "session",
+          "session_id": "Session W9",
+          "name": "Workshop 9",
+          "room_id": "room-6",
+          "start": "11:30",
+          "end": "13:00",
+          "presentations": [
+            {
+              "id": 897,
+              "type": "Workshop",
+              "presenter": "Angelo Rossimori",
+              "title": "Systematic Production of openEHR Archetypes for EHDS: Operational Semantics and AI-Assisted Metamorphosis Across Language Layers"
+            }
+          ]
+        },
+        {
+          "type": "session",
+          "session_id": "Session W26",
+          "name": "Workshop 26",
+          "room_id": "room-7",
+          "start": "11:30",
+          "end": "13:00",
+          "presentations": [
+            {
+              "id": 979,
+              "type": "Workshop",
+              "presenter": "Jaime Delgado",
+              "title": "3rd Joint Workshop EFMI WGs THI - FAIR - SSE: FAIR Principles and Artificial Intelligence for Secure Translational Sharing of Clinical and Genomic Data"
+            }
+          ]
+        },
+        {
+          "type": "special",
+          "name": "Lunch",
+          "room_id": "other",
+          "start": "13:00",
+          "end": "14:00"
+        },
+        {
+          "type": "session",
+          "session_id": "Session A12",
+          "name": "AI in Medicine 26",
+          "room_id": "main-hall",
+          "start": "14:00",
+          "end": "15:30",
+          "presentations": [
+            {
+              "id": 762,
+              "type": "Full paper",
+              "presenter": "Baptiste Pras",
+              "title": "Fine-Grained Mention-Level Analysis of Biomedical Entity Linking Models"
+            },
+            {
+              "id": 812,
+              "type": "Full paper",
+              "presenter": "Tricia Park",
+              "title": "Can NLP Detect Loneliness in Electronic Health Records? A Proof-of- Concept Study"
+            },
+            {
+              "id": 861,
+              "type": "Full paper",
+              "presenter": "Eren ÇAMUR",
+              "title": "Evaluating Reasoning Effect For LLMs: Prompt Sensitivity and Text- Image Based Performance in Musculoskeletal Radiology"
+            },
+            {
+              "id": 789,
+              "type": "Full paper",
+              "presenter": "Elizabeth Borycki",
+              "title": "Advances and Trends in Clinical Information Systems: From AI to Machine Learning Applications and Beyond"
+            },
+            {
+              "id": 811,
+              "type": "Full paper",
+              "presenter": "Georgios Nomikos, Antonis Billis",
+              "title": "Exploring the Personalisation of Digital Cognitive Rehabilitation in Multiple Sclerosis through Wearable Data and Machine Learning"
+            },
+            {
+              "id": 814,
+              "type": "Full paper",
+              "presenter": "Mina Bjelogrlic",
+              "title": "A Zoo of AI Transparency Indicators: What do users want (and need) in Hospitals?"
+            },
+            {
+              "id": 841,
+              "type": "Full paper",
+              "presenter": "Elizabeth Borycki",
+              "title": "A Methodology for Creating Patient Relevant Questions Suitable for Evaluating AI Generated Health Advice"
+            },
+            {
+              "id": 849,
+              "type": "Full paper",
+              "presenter": "Zhijun Yin",
+              "title": "Making LLM Predictions Interpretable: Fine-Tuning GPT-4o for Early Discontinuation of Cancer Medication"
+            }
+          ]
+        },
+        {
+          "type": "session",
+          "session_id": "Session B12",
+          "name": "Other related Topics 5",
+          "room_id": "room-1",
+          "start": "14:00",
+          "end": "15:30",
+          "presentations": [
+            {
+              "id": 732,
+              "type": "Full paper",
+              "presenter": "Srushhti Trivedi",
+              "title": "Participatory Technology Assessment in AI development for Sleep Medicine"
+            },
+            {
+              "id": 743,
+              "type": "Full paper",
+              "presenter": "Julie Guebey",
+              "title": "Digital navigation : a UX pilot study in the context of pain management"
+            },
+            {
+              "id": 764,
+              "type": "Full paper",
+              "presenter": "Maria Papoutsoglou",
+              "title": "From Records to Relationships: An Ontology-Based Knowledge Graph Framework for Cancer Data Interoperability"
+            },
+            {
+              "id": 780,
+              "type": "Full paper",
+              "presenter": "Romaric Marcilly",
+              "title": "Designing with Humans in the Loop: A Human-Centered Approach to AI-based Healthcare Technologies"
+            },
+            {
+              "id": 797,
+              "type": "Full paper",
+              "presenter": "Edgar Dulce Villarreal",
+              "title": "IoT-Based Biomedical Monitoring System for Preventive Maternal Healthcare and Early Detection of Obstetric Complications"
+            },
+            {
+              "id": 803,
+              "type": "Full paper",
+              "presenter": "Elin Thygesen",
+              "title": "Exploring the Role of Robotics in Nursing Homes: Insights from Healthcare Professionals"
+            },
+            {
+              "id": 840,
+              "type": "Full paper",
+              "presenter": "Arshia Khan",
+              "title": "Measuring the Acceptance of Humanoid Robots in Adult Day Care Facilities"
+            },
+            {
+              "id": 843,
+              "type": "Full paper",
+              "presenter": "Arshia Khan",
+              "title": "Empowering Dementia Caregivers: A Smart Mobile Solution for Stress Tracking and Support"
+            }
+          ]
+        },
+        {
+          "type": "session",
+          "session_id": "Session C12",
+          "name": "Infrastructures and Regulations 13",
+          "room_id": "room-2",
+          "start": "14:00",
+          "end": "15:30",
+          "presentations": [
+            {
+              "id": 586,
+              "type": "Full paper",
+              "presenter": "David Rubio Ruiz",
+              "title": "Practical Implications for Using Laboratory Data: Research over Federated Networks"
+            },
+            {
+              "id": 634,
+              "type": "Full paper",
+              "presenter": "Johan van Soest",
+              "title": "LinkedDicom: indexing DICOM metadata using Semantic Web technologies"
+            },
+            {
+              "id": 691,
+              "type": "Full paper",
+              "presenter": "Parisis Gallos",
+              "title": "Large Language Models for Health Knowledge Modelling in Data Interoperability: A Scoping Review of Methods, Standards, and Applications"
+            },
+            {
+              "id": 733,
+              "type": "Full paper",
+              "presenter": "Iiris Karppila",
+              "title": "Interoperability Barriers in the European Health Data Space: A Scoping Review"
+            },
+            {
+              "id": 765,
+              "type": "Full paper",
+              "presenter": "Jordi Piera-Jiménez",
+              "title": "Balancing Personalisation and Interoperability: An Enterprise Architecture Approach to Person-Centred Digital Health"
+            },
+            {
+              "id": 775,
+              "type": "Full paper",
+              "presenter": "Laura Palling, Julius Juurmaa, Peeter Ross",
+              "title": "Designing an Information Model for Structured Referrals and Interoperable Data Exchange in Radiology"
+            },
+            {
+              "id": 779,
+              "type": "Full paper",
+              "presenter": "Margaux Gatrio",
+              "title": "DQ-SR: Towards the Standardization of Data Quality Reports"
+            },
+            {
+              "id": 621,
+              "type": "Short communication",
+              "presenter": "Evangelia Minga",
+              "title": "Building robust foundations for data interoperability in hematological malignancies"
+            }
+          ]
+        },
+        {
+          "type": "session",
+          "session_id": "Session D12",
+          "name": "Education 4",
+          "room_id": "room-3",
+          "start": "14:00",
+          "end": "15:30",
+          "presentations": [
+            {
+              "id": 73,
+              "type": "Full paper",
+              "presenter": "Juell Homco",
+              "title": "Methods for Usability Testing an Educational Simulation: A Case- Study Using a Maternal Telehealth Scenario"
+            },
+            {
+              "id": 709,
+              "type": "Full paper",
+              "presenter": "Mona Perbix",
+              "title": "Practical Teaching Units Focusing on the Integration of Medical Research Data: Updating the MI-Lab"
+            },
+            {
+              "id": 659,
+              "type": "Full paper",
+              "presenter": "Maria Tsirintani",
+              "title": "The Opinions of University Students and Professionals of the Healthcare Sector about Health Informatics"
+            },
+            {
+              "id": 706,
+              "type": "Full paper",
+              "presenter": "David Vicente Alvarez",
+              "title": "Empirical comparison of causal machine learning and post-hoc AI interpretability models for risk factor analysis: an application to medical specialty choice"
+            },
+            {
+              "id": 776,
+              "type": "Full paper",
+              "presenter": "Anne Margrethe Vestgøte Bosch",
+              "title": "Recommendations for Establishing a Master’s Degree in Digital Health Services"
+            }
+          ]
+        },
+        {
+          "type": "session",
+          "session_id": "Session E12",
+          "name": "Onehealth 4",
+          "room_id": "room-4",
+          "start": "14:00",
+          "end": "15:30",
+          "presentations": [
+            {
+              "id": 213,
+              "type": "Full paper",
+              "presenter": "Patcharida Saengdang",
+              "title": "Assessing Musculoskeletal Discomfort and Ergonomic Risks among Healthcare Assistants at Operation Room: A Cross-sectional Study in Thailand"
+            },
+            {
+              "id": 225,
+              "type": "Full paper",
+              "presenter": "Hwayoung Cho",
+              "title": "The ESCAPE Framework: A Practical Two-Phase Mixed-Methods Approach for Usability Evaluation of Interoperable Health IT"
+            },
+            {
+              "id": 409,
+              "type": "Short communication",
+              "presenter": "Panos Bonotis",
+              "title": "Exploring Patient-Facing Staff Perspectives on Digital Consent Management: Insights from the CONSENT Project"
+            },
+            {
+              "id": 430,
+              "type": "Short communication",
+              "presenter": "Megan Salwei",
+              "title": "Personalizing Breast Cancer Care through a Patient Portal and EHR- integrated Decision Support Tool"
+            },
+            {
+              "id": 87,
+              "type": "Short communication",
+              "presenter": "Vera Weirauch",
+              "title": "Exploring Citizens' Participation Preferences in the Development and Evaluation of Digital Health Interventions"
+            },
+            {
+              "id": 362,
+              "type": "Full paper",
+              "presenter": "Adeola Bamgboje-Ayodele",
+              "title": "Learning from international experiences delivering virtual urgent care services through a single front door: A narrative review"
+            },
+            {
+              "id": 513,
+              "type": "Full paper",
+              "presenter": "Simone Falco",
+              "title": "Retrospective and Spatial Analysis in Healthcare Facilities: Measuring the New Hospital Giannina Gaslini Performance"
+            },
+            {
+              "id": 658,
+              "type": "Full paper",
+              "presenter": "Annika Hering",
+              "title": "Strategic Alignment for Digital Transformation in German Hospitals: A Qualitative Study on Critical Success Factors"
+            },
+            {
+              "id": 711,
+              "type": "Full paper",
+              "presenter": "Anna Vahteristo",
+              "title": "Accessibility of Digital Health and Welfare Services among Immigrants in Finland"
+            }
+          ]
+        },
+        {
+          "type": "session",
+          "session_id": "Session W25",
+          "name": "Workshop 25",
+          "room_id": "room-5",
+          "start": "14:00",
+          "end": "15:30",
+          "presentations": [
+            {
+              "id": 975,
+              "type": "Workshop",
+              "presenter": "Elizabeth Dunn",
+              "title": "Academic-Practice Partnerships to Advance AI in Healthcare: Global Perspectives"
+            }
+          ]
+        },
+        {
+          "type": "session",
+          "session_id": "Session W24",
+          "name": "Workshop 24",
+          "room_id": "room-6",
+          "start": "14:00",
+          "end": "15:30",
+          "presentations": [
+            {
+              "id": 969,
+              "type": "Workshop",
+              "presenter": "Jacob Hofdijk",
+              "title": "Getting a Grip on Population Health Management"
+            }
+          ]
+        },
+        {
+          "type": "special",
+          "name": "Young EFMI Lead 4",
+          "room_id": "room-7",
+          "start": "14:00",
+          "end": "15:30"
+        },
+        {
+          "type": "special",
+          "name": "Closing Ceremony",
+          "room_id": "main-hall",
+          "start": "15:30",
+          "end": "17:00"
         }
       ]
     }
