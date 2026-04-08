@@ -135,14 +135,14 @@ export default function TimetablePage() {
           <button
             onClick={() => goToDay(conferenceDates[activeIdx - 1])}
             disabled={activeIdx <= 0}
-            className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:opacity-30 disabled:pointer-events-none"
+            className="p-1.5 rounded-md border text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:opacity-30 disabled:pointer-events-none"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
           <button
             onClick={() => goToDay(conferenceDates[activeIdx + 1])}
             disabled={activeIdx >= conferenceDates.length - 1}
-            className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:opacity-30 disabled:pointer-events-none"
+            className="p-1.5 rounded-md border text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:opacity-30 disabled:pointer-events-none"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
