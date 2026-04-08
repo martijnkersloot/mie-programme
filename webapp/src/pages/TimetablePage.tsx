@@ -56,7 +56,7 @@ export default function TimetablePage() {
     if (!data) return []
     return data.days.flatMap((day) =>
       day.events.map((e) => ({
-        id: e.type === 'session' ? e.session_id : `special-${day.date}-${e.start}`,
+        id: e.type === 'session' ? e.session_id : `special-${day.date}-${e.start.replace(/:/g, '')}`,
         title: e.name,
         start: toZDT(day.date, e.start),
         end: toZDT(day.date, e.end),
