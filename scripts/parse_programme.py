@@ -101,9 +101,10 @@ def _process_table(table: list, days_map: dict, room_map: dict, state: dict) -> 
     """Walk rows of one extracted table and populate days_map.
 
     state is a mutable dict shared across all table calls:
-      state["current_day"]     – str | None
-      state["active_sessions"] – dict[int, dict]   col_offset → session dict
-      state["pending_ids"]     – dict[int, str]    col_offset → "Session Xn"
+      state["current_day"]      – str | None
+      state["active_sessions"]  – dict[int, dict]   col_offset → session dict
+      state["pending_ids"]      – dict[int, str]    col_offset → "Session Xn"
+      state["pending_labels"]   – dict[int, str]    col_offset → plain label text
     """
     for row in table:
         col0 = _cell(row[0] if row else None)
@@ -115,6 +116,7 @@ def _process_table(table: list, days_map: dict, room_map: dict, state: dict) -> 
             days_map.setdefault(state["current_day"], {"date": state["current_day"], "events": []})
             state["active_sessions"] = {}
             state["pending_ids"] = {}
+            state["pending_labels"] = {}
             continue
 
         if state["current_day"] is None:
@@ -122,18 +124,20 @@ def _process_table(table: list, days_map: dict, room_map: dict, state: dict) -> 
 
         day = days_map[state["current_day"]]
 
-        # ---- Column header row → skip -----------------------------------
-        if _cell(row[1] if len(row) > 1 else None) == "ID TYPE PRESENTER TITLE":
-            continue
-
         # ---- Session analysis at standard 4-col offsets -----------------
         full_sessions: dict[int, dict] = {}
         id_only: dict[int, str] = {}
         name_time: dict[int, tuple] = {}   # offset → (name, start, end)
+        has_col_header = False
 
         for offset in range(1, len(row), 4):
             c = _cell(row[offset] if offset < len(row) else None)
             if not c:
+                continue
+
+            # Skip column-header marker cells ("ID TYPE PRESENTER TITLE")
+            if c == "ID TYPE PRESENTER TITLE":
+                has_col_header = True
                 continue
 
             # Full session cell: "Session Xn [name] DD/MM/YYYY (HH:MM-HH:MM)"
@@ -162,20 +166,36 @@ def _process_table(table: list, days_map: dict, room_map: dict, state: dict) -> 
                 id_only[offset] = f"Session {c.split()[1]}"
                 continue
 
-            # Name+time only (second row of a split header): "AI in Medicine 7 DD/MM ..."
+            # Cell with a datetime: either "Name DD/MM ... (HH:MM-HH:MM)"
+            # or just "DD/MM/YYYY (HH:MM-HH:MM)" (date-only, row 3 of 3-row split)
             if _has_datetime(c):
                 name_m = re.match(r"(.*?)\s+\d{2}/\d{2}/\d{4}", c)
-                name   = name_m.group(1).strip() if name_m else c
-                # Skip cells where the "name" is actually just a date
+                name   = name_m.group(1).strip() if name_m else ""
+                # If "name" is itself a date, clear it
                 if re.match(r"^\d{2}/\d{2}/\d{4}", name):
+                    name = ""
+                # Prepend any buffered plain label (handles 3-row split headers
+                # and special events whose label was on the previous row)
+                if offset in state["pending_labels"]:
+                    prefix = state["pending_labels"].pop(offset)
+                    name = f"{prefix} {name}".strip() if name else prefix
+                if not name:
                     continue
                 start, end = _parse_time_range(c)
                 name_time[offset] = (name, start, end)
+                continue
+
+            # Plain label cell (no Session prefix, no datetime) — buffer for
+            # the next row which may supply the date (2nd or 3rd row of split).
+            # Only buffer at session column offsets (1, 5, 9, …) to avoid
+            # capturing TYPE/PRESENTER/TITLE values from presentation rows.
+            if not re.match(r"^\d+$", c) and offset in room_map:
+                state["pending_labels"][offset] = c
 
         # Always buffer session ID-only cells for the next row
         state["pending_ids"].update(id_only)
 
-        # If this row is purely session IDs, nothing else to do
+        # If this row produced only session IDs, nothing else to do
         if id_only and not full_sessions and not name_time:
             continue
 
@@ -207,24 +227,28 @@ def _process_table(table: list, days_map: dict, room_map: dict, state: dict) -> 
                 room_id = _room_id_for_col(offset, room_map)
                 _add_special(day, name, start, end, room_id)
 
-        # ---- Special events from non-session cells with a datetime ------
-        # Covers Coffee Break, Lunch, Welcome Party, Gala Dinner, etc.
-        # These can appear at any column (often col 33 "Other")
-        for cell_raw in row:
-            if not cell_raw:
-                continue
-            c = _cell(cell_raw)
-            if _has_datetime(c) and not c.startswith("Session"):
-                name_m = re.match(r"(.*?)\s+\d{2}/\d{2}/\d{4}", c)
-                name = name_m.group(1).strip() if name_m else c
-                # Skip cells where the "name" is empty or is itself a date
-                if not name or re.match(r"^\d{2}/\d{2}/\d{4}", name):
+        # ---- Special events from non-session-column cells with a datetime --
+        # Catches events like Welcome Party that appear at TYPE/PRESENTER/TITLE
+        # column offsets rather than the session-ID column (every 4th col).
+        # Session-column offsets are already handled by the name_time path above.
+        if not has_col_header:
+            session_offsets = set(range(1, len(row), 4))
+            for ci, cell_raw in enumerate(row):
+                if ci in session_offsets or not cell_raw:
                     continue
-                start, end = _parse_time_range(c)
-                _add_special(day, name, start, end, None)
-                break
+                c = _cell(cell_raw)
+                if _has_datetime(c) and not c.startswith("Session"):
+                    name_m = re.match(r"(.*?)\s+\d{2}/\d{2}/\d{4}", c)
+                    name = name_m.group(1).strip() if name_m else c
+                    if not name or re.match(r"^\d{2}/\d{2}/\d{4}", name):
+                        continue
+                    start, end = _parse_time_range(c)
+                    _add_special(day, name, start, end, None)
+                    break
 
-        # ---- Presentation data rows ------------------------------------
+        # ---- Presentation data rows (skip on col-header rows) -----------
+        if has_col_header:
+            continue
         for offset, sess in state["active_sessions"].items():
             if offset >= len(row):
                 continue
@@ -278,9 +302,10 @@ def parse_pdf(pdf_path: str) -> dict:
         # State shared across all table calls so that a day split over multiple
         # pages/tables continues correctly without needing a repeated day header.
         state = {
-            "current_day":     None,
-            "active_sessions": {},
-            "pending_ids":     {},
+            "current_day":      None,
+            "active_sessions":  {},
+            "pending_ids":      {},
+            "pending_labels":   {},
         }
         for table in all_tables:
             _process_table(table, days_map, room_map, state)
