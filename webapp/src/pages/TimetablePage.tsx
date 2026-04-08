@@ -21,7 +21,8 @@ const ROOM_COLORS = [
 ]
 
 function toZDT(date: string, time: string) {
-  return Temporal.ZonedDateTime.from(`${date}T${time}:00[Europe/Amsterdam]`)
+  const padded = time.padStart(5, '0') // "8:30" → "08:30"
+  return Temporal.ZonedDateTime.from(`${date}T${padded}:00[Europe/Amsterdam]`)
 }
 
 export default function TimetablePage() {
