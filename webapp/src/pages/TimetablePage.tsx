@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Calendar, dateFnsLocalizer, type EventProps } from 'react-big-calendar'
 import { format, parse, startOfWeek, getDay } from 'date-fns'
 import { enUS } from 'date-fns/locale/en-US'
@@ -187,10 +188,10 @@ export default function TimetablePage() {
       />
 
       {/* Session detail slide-in */}
-      {selectedSession && (
+      {selectedSession && createPortal(
         <>
-          <div className="fixed inset-0 z-40 bg-black/20" onClick={() => setSelectedSession(null)} />
-          <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-background border-l shadow-xl flex flex-col">
+          <div className="fixed inset-0 z-[200] bg-black/30" onClick={() => setSelectedSession(null)} />
+          <div className="fixed inset-y-0 right-0 z-[201] w-full max-w-md bg-background border-l shadow-xl flex flex-col">
             <div className="flex items-start justify-between gap-4 p-5 border-b">
               <div>
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
@@ -217,7 +218,8 @@ export default function TimetablePage() {
               ))}
             </div>
           </div>
-        </>
+        </>,
+        document.body
       )}
     </div>
   )
