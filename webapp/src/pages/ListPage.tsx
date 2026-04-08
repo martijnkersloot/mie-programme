@@ -5,7 +5,7 @@ import { formatDate } from '@/lib/utils'
 import PresentationRow from '@/components/PresentationRow'
 import { Badge } from '@/components/ui/badge'
 import type { Event, Session, SpecialEvent } from '@/types'
-import { ChevronDown, ChevronUp, X } from 'lucide-react'
+import { X } from 'lucide-react'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -31,40 +31,27 @@ function groupByTimeSlot(events: Event[]): TimeSlotGroup[] {
 
 // ─── components ─────────────────────────────────────────────────────────────
 
-function SessionRow({ session, roomLabel }: { session: Session; roomLabel: string }) {
-  const [expanded, setExpanded] = useState(false)
-
+function SessionRow({ session, roomLabel, onSelect }: {
+  session: Session
+  roomLabel: string
+  onSelect: (s: Session) => void
+}) {
   return (
-    <div className="border rounded-lg bg-card">
-      <button
-        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-muted/40 transition-colors"
-        onClick={() => setExpanded((v) => !v)}
-      >
-        <span className="shrink-0 text-xs tabular-nums text-muted-foreground w-24">
-          {session.start}–{session.end}
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold leading-snug">{session.name}</p>
-          {!expanded && (
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {session.presentations.length} presentation{session.presentations.length !== 1 ? 's' : ''}
-            </p>
-          )}
-        </div>
-        <Badge variant="outline" className="text-xs shrink-0">{roomLabel}</Badge>
-        <span className="shrink-0 text-muted-foreground">
-          {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-        </span>
-      </button>
-
-      {expanded && (
-        <div className="border-t px-4 pb-3 pt-1">
-          {session.presentations.map((p) => (
-            <PresentationRow key={p.id} presentation={p} />
-          ))}
-        </div>
-      )}
-    </div>
+    <button
+      className="w-full border rounded-lg bg-card flex items-center gap-3 px-4 py-3 text-left hover:bg-muted/40 transition-colors"
+      onClick={() => onSelect(session)}
+    >
+      <span className="shrink-0 text-xs tabular-nums text-muted-foreground w-24">
+        {session.start}–{session.end}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold leading-snug">{session.name}</p>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          {session.presentations.length} presentation{session.presentations.length !== 1 ? 's' : ''}
+        </p>
+      </div>
+      <Badge variant="outline" className="text-xs shrink-0">{roomLabel}</Badge>
+    </button>
   )
 }
 
@@ -193,6 +180,7 @@ export default function ListPage() {
                     <SessionRow
                       session={group.sessions[0]}
                       roomLabel={roomLabelMap.get(group.sessions[0].room_id) ?? group.sessions[0].room_id}
+                      onSelect={setSelectedSession}
                     />
                   )}
                   {group.sessions.length > 1 && (
