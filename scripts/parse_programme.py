@@ -2,8 +2,8 @@
 """
 Parse MIE conference programme PDF into a structured JSON file.
 
-Downloads the PDF directly from Google Drive when --gdrive-url or --gdrive-id
-is given. Falls back to a local --pdf path.
+Downloads the PDF directly from Google Drive when --gdrive-id is given.
+Falls back to a local --pdf path.
 
 Usage:
     python scripts/parse_programme.py
@@ -13,6 +13,7 @@ Usage:
 
 import argparse
 import json
+import os
 import re
 import sys
 import tempfile
@@ -28,11 +29,11 @@ except ImportError:
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _cell(text: str | None) -> str:
+def _cell(text) -> str:
     """Normalise a table cell: strip whitespace, collapse newlines to spaces."""
     if text is None:
         return ""
-    return re.sub(r"\s*\n\s*", " ", text.strip())
+    return re.sub(r"\s*\n\s*", " ", str(text).strip())
 
 
 def _parse_time_range(text: str) -> tuple[str | None, str | None]:
@@ -44,21 +45,23 @@ def _has_datetime(text: str) -> bool:
     return bool(re.search(r"\d{2}/\d{2}/\d{4}.*\(\d{1,2}:\d{2}-\d{1,2}:\d{2}\)", text))
 
 
+def _make_room_id(label: str) -> str:
+    """'Main Hall' → 'main-hall',  'Room 1' → 'room-1'"""
+    return label.strip().lower().replace(" ", "-")
+
+
 # ---------------------------------------------------------------------------
 # Room mapping: auto-detected from the PDF table header
 # ---------------------------------------------------------------------------
 
-def _detect_rooms(tables: list[list[list]]) -> dict[int, tuple[str, str]]:
+def _detect_rooms(tables: list) -> dict[int, tuple[str, str]]:
     """
     Derive {col_offset: (room_label, room_nickname)} from the PDF's header row.
 
     The header row contains a merged cell like:
       'Main Hall Room 1 Room 2 ... Room 7\\nOther\\n"Maestrale" "Scirocco" ...'
 
-    Room data repeats every 4 columns starting at offset 1:
-      offset 1  → room 0 (Main Hall)
-      offset 5  → room 1 (Room 1)
-      ...
+    Rooms repeat every 4 columns starting at offset 1.
     """
     for table in tables:
         for row in table[:5]:
@@ -66,7 +69,6 @@ def _detect_rooms(tables: list[list[list]]) -> dict[int, tuple[str, str]]:
                 if not cell:
                     continue
                 text = str(cell)
-                # Look for the header that lists multiple rooms
                 labels = re.findall(r"Main Hall|Room \d+|Other", text)
                 nicks  = re.findall(r'"([A-Za-z]+)"', text)
                 if len(labels) >= 2:
@@ -74,26 +76,30 @@ def _detect_rooms(tables: list[list[list]]) -> dict[int, tuple[str, str]]:
                         1 + i * 4: (labels[i], nicks[i] if i < len(nicks) else "")
                         for i in range(len(labels))
                     }
-    # Fallback: common MIE layout
+    # Fallback: known MIE 2026 layout
     return {
-        1:  ("Main Hall", ""), 5:  ("Room 1", ""), 9:  ("Room 2", ""),
-        13: ("Room 3",    ""), 17: ("Room 4", ""), 21: ("Room 5", ""),
-        25: ("Room 6",    ""), 29: ("Room 7", ""),
+        1:  ("Main Hall", "Maestrale"), 5:  ("Room 1", "Scirocco"),
+        9:  ("Room 2",    "Libeccio"),  13: ("Room 3", "Ponente"),
+        17: ("Room 4",    "Levante"),   21: ("Room 5", "Aliseo"),
+        25: ("Room 6",    "Zefiro"),    29: ("Room 7", "Austro"),
     }
+
+
+def _room_id_for_col(col_idx: int, room_map: dict) -> str | None:
+    """Return the room_id for an exact column offset, or None."""
+    entry = room_map.get(col_idx)
+    return _make_room_id(entry[0]) if entry else None
 
 
 # ---------------------------------------------------------------------------
 # Table processor
 # ---------------------------------------------------------------------------
 
-def _process_table(
-    table: list[list],
-    days_map: dict,
-    room_map: dict[int, tuple[str, str]],
-) -> None:
+def _process_table(table: list, days_map: dict, room_map: dict) -> None:
     """Walk rows of one extracted table and populate days_map."""
     current_day: str | None = None
-    active_sessions: dict[int, dict] = {}   # col_offset → session_dict
+    active_sessions: dict[int, dict] = {}  # col_offset → session dict
+    pending_ids: dict[int, str] = {}       # col_offset → "Session Xn" (waiting for name row)
 
     for row in table:
         col0 = _cell(row[0] if row else None)
@@ -102,9 +108,9 @@ def _process_table(
         day_m = re.match(r"^(\d{1,2})-May$", col0)
         if day_m:
             current_day = f"2026-05-{int(day_m.group(1)):02d}"
-            if current_day not in days_map:
-                days_map[current_day] = {"date": current_day, "events": []}
+            days_map.setdefault(current_day, {"date": current_day, "events": []})
             active_sessions = {}
+            pending_ids = {}
             continue
 
         if current_day is None:
@@ -112,59 +118,87 @@ def _process_table(
 
         day = days_map[current_day]
 
-        # ---- Session header row ----------------------------------------
-        new_sessions: dict[int, dict] = {}
-        for offset in range(1, len(row), 4):
-            cell = _cell(row[offset] if offset < len(row) else None)
-            sm = re.match(
-                r"Session\s+(\S+)\s+(.*?)\s+(\d{2}/\d{2}/\d{4}.*)",
-                cell, re.DOTALL
-            )
-            if sm:
-                session_id = f"Session {sm.group(1)}"
-                name = sm.group(2).strip()
-                start, end = _parse_time_range(sm.group(3))
-                room_label, room_name = room_map.get(offset, (f"Col {offset}", ""))
-                sess = {
-                    "type": "session",
-                    "session_id": session_id,
-                    "name": name,
-                    "room": room_label,
-                    "room_name": room_name,
-                    "start": start,
-                    "end": end,
-                    "presentations": [],
-                }
-                new_sessions[offset] = sess
-                day["events"].append(sess)
-
-        if new_sessions:
-            active_sessions.update(new_sessions)
-            continue
-
-        # ---- Column header row ("ID TYPE PRESENTER TITLE") → skip ------
+        # ---- Column header row → skip -----------------------------------
         if _cell(row[1] if len(row) > 1 else None) == "ID TYPE PRESENTER TITLE":
             continue
 
-        # ---- Special / whole-programme events ---------------------------
-        # Any cell that contains a date+time but is NOT a session header
-        for cell_raw in row:
-            if not cell_raw:
+        # ---- Session analysis at standard 4-col offsets -----------------
+        full_sessions: dict[int, dict] = {}
+        id_only: dict[int, str] = {}
+        name_time: dict[int, tuple] = {}   # offset → (name, start, end)
+
+        for offset in range(1, len(row), 4):
+            c = _cell(row[offset] if offset < len(row) else None)
+            if not c:
                 continue
-            cell = _cell(cell_raw)
-            if _has_datetime(cell) and not cell.startswith("Session"):
-                # Strip trailing date from the name
-                name = re.sub(r"\s+\d{2}/\d{2}/\d{4}.*$", "", cell).strip()
-                if not name:
-                    continue
-                start, end = _parse_time_range(cell)
-                if not any(
-                    e.get("type") == "special" and e.get("name") == name
-                    for e in day["events"]
-                ):
-                    day["events"].append({"type": "special", "name": name,
-                                          "start": start, "end": end})
-                break
+
+            # Full session cell: "Session Xn [name] DD/MM/YYYY (HH:MM-HH:MM)"
+            sm = re.match(
+                r"Session\s+(\S+)\s*(.*?)\s*(\d{2}/\d{2}/\d{4}.*)",
+                c, re.DOTALL
+            )
+            if sm:
+                session_id = f"Session {sm.group(1)}"
+                name       = sm.group(2).strip() or session_id
+                start, end = _parse_time_range(sm.group(3))
+                room_label, room_nickname = room_map.get(offset, ("?", ""))
+                full_sessions[offset] = {
+                    "type":       "session",
+                    "session_id": session_id,
+                    "name":       name,
+                    "room_id":    _make_room_id(room_label),
+                    "start":      start,
+                    "end":        end,
+                    "presentations": [],
+                }
+                continue
+
+            # Session ID only (no name/time yet): "Session A5"
+            if re.match(r"^Session\s+\S+$", c):
+                id_only[offset] = f"Session {c.split()[1]}"
+                continue
+
+            # Name+time only (second row of a split header): "AI in Medicine 7 DD/MM ..."
+            if _has_datetime(c):
+                name_m = re.match(r"(.*?)\s+\d{2}/\d{2}/\d{4}", c)
+                name   = name_m.group(1).strip() if name_m else c
+                start, end = _parse_time_range(c)
+                name_time[offset] = (name, start, end)
+
+        # Always buffer session ID-only cells for the next row
+        pending_ids.update(id_only)
+
+        # If this row is purely session IDs, nothing else to do
+        if id_only and not full_sessions and not name_time:
+            continue
+
+        # Match name+time cells with buffered pending IDs (split-header rows)
+        matched_sessions: dict[int, dict] = {}
+        for offset, (name, start, end) in name_time.items():
+            if offset in pending_ids:
+                session_id = pending_ids.pop(offset)
+                room_label, room_nickname = room_map.get(offset, ("?", ""))
+                matched_sessions[offset] = {
+                    "type":       "session",
+                    "session_id": session_id,
+                    "name":       name,
+                    "room_id":    _make_room_id(room_label),
+                    "start":      start,
+                    "end":        end,
+                    "presentations": [],
+                }
+
+        new_sessions = {**full_sessions, **matched_sessions}
+        if new_sessions:
+            for offset, sess in new_sessions.items():
+                active_sessions[offset] = sess
+                day["events"].append(sess)
+
+        # Name+time cells NOT matched to a pending ID → special events
+        for offset, (name, start, end) in name_time.items():
+            if offset not in matched_sessions and name:
+                room_id = _room_id_for_col(offset, room_map)
+                _add_special(day, name, start, end, room_id)
 
         # ---- Presentation data rows ------------------------------------
         for offset, sess in active_sessions.items():
@@ -188,6 +222,18 @@ def _process_table(
                 sess["presentations"].append(pres)
 
 
+def _add_special(day: dict, name: str, start, end, room_id) -> None:
+    """Add a special event to the day, avoiding duplicates."""
+    if not any(e.get("type") == "special" and e.get("name") == name for e in day["events"]):
+        day["events"].append({
+            "type":    "special",
+            "name":    name,
+            "room_id": room_id,
+            "start":   start,
+            "end":     end,
+        })
+
+
 # ---------------------------------------------------------------------------
 # Main parse
 # ---------------------------------------------------------------------------
@@ -196,17 +242,22 @@ def parse_pdf(pdf_path: str) -> dict:
     programme: dict = {
         "conference": "MIE 2026",
         "title": "Opening the Personal Gate between Technology and Health Care",
+        "rooms": [],
         "days": [],
     }
     days_map: dict[str, dict] = {}
 
     with pdfplumber.open(pdf_path) as pdf:
         all_tables = [t for page in pdf.pages for t in page.extract_tables()]
-        room_map = _detect_rooms(all_tables)
+        room_map   = _detect_rooms(all_tables)
 
         for table in all_tables:
             _process_table(table, days_map, room_map)
 
+    programme["rooms"] = [
+        {"id": _make_room_id(label), "label": label, "nickname": nickname}
+        for _, (label, nickname) in sorted(room_map.items())
+    ]
     programme["days"] = sorted(days_map.values(), key=lambda d: d["date"])
 
     for day in programme["days"]:
@@ -227,7 +278,6 @@ def download_from_gdrive(gdrive_id: str, dest: str) -> None:
         import gdown
     except ImportError:
         sys.exit("gdown is required for Google Drive downloads:  pip install gdown")
-
     url = f"https://drive.google.com/file/d/{gdrive_id}/view"
     print(f"Downloading PDF from Google Drive ({gdrive_id}) …")
     gdown.download(url=url, output=dest, fuzzy=True, quiet=False)
@@ -237,7 +287,10 @@ def download_from_gdrive(gdrive_id: str, dest: str) -> None:
 # CLI
 # ---------------------------------------------------------------------------
 
-GDRIVE_ID = "1_SAA1ks7xbW7TRGKiLvhSZ_6MYdrsA4P"  # MIE 2026 programme PDF
+# Google Drive file ID — read from environment variable, with a fallback.
+# Set GDRIVE_ID in your shell or .env before running locally.
+# In GitHub Actions it is injected via the workflow env: block.
+GDRIVE_ID = os.environ.get("GDRIVE_ID", "1_SAA1ks7xbW7TRGKiLvhSZ_6MYdrsA4P")
 
 
 def main():
@@ -245,15 +298,13 @@ def main():
     src = ap.add_mutually_exclusive_group()
     src.add_argument("--pdf",       help="Local PDF path")
     src.add_argument("--gdrive-id", default=GDRIVE_ID,
-                     help="Google Drive file ID (default: MIE 2026 PDF)")
-    ap.add_argument("--output", default="data/programme.json",
-                    help="Output JSON path (default: data/programme.json)")
+                     help="Google Drive file ID (default: $GDRIVE_ID env var)")
+    ap.add_argument("--output",   default="data/programme.json")
     ap.add_argument("--keep-pdf", action="store_true",
                     help="Keep downloaded PDF instead of deleting it")
     args = ap.parse_args()
 
     tmp_pdf: str | None = None
-
     if args.pdf:
         pdf_path = args.pdf
     else:
