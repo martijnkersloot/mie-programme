@@ -10,6 +10,10 @@ import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 
 // ─── constants ───────────────────────────────────────────────────────────────
 
+const PX_PER_MINUTE = 1.5   // 1 hour = 90 px
+const GUTTER_W      = 48    // px — time label column
+const COL_GAP       = 4     // px — gap between overlapping columns
+
 const ROOM_COLORS = [
   '#2563eb', '#0891b2', '#059669', '#d97706',
   '#dc2626', '#7c3aed', '#db2777', '#ea580c', '#65a30d',
@@ -17,122 +21,136 @@ const ROOM_COLORS = [
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
-interface TimeSlotGroup {
-  start: string
-  end: string
-  specials: SpecialEvent[]
-  sessions: Session[]
+function toMin(t: string): number {
+  const [h, m = 0] = t.split(':').map(Number)
+  return h * 60 + m
 }
 
-function groupByTimeSlot(events: Event[]): TimeSlotGroup[] {
-  const map = new Map<string, TimeSlotGroup>()
+// ─── layout algorithm ────────────────────────────────────────────────────────
+//
+// Groups events by exact (start, end) pair — same as before.
+// Then assigns columns so that overlapping groups (different time windows)
+// sit side by side rather than on top of each other.
+
+interface LayoutGroup {
+  start: string
+  end: string
+  startMin: number
+  endMin: number
+  specials: SpecialEvent[]
+  sessions: Session[]
+  col: number      // 0-based column for this group
+  numCols: number  // total simultaneous columns at this point in time
+}
+
+function buildLayout(events: Event[]): LayoutGroup[] {
+  // 1. Group by exact time window
+  const map = new Map<string, LayoutGroup>()
   for (const e of events) {
     const key = `${e.start}|${e.end}`
-    if (!map.has(key)) map.set(key, { start: e.start, end: e.end, specials: [], sessions: [] })
+    if (!map.has(key)) {
+      map.set(key, {
+        start: e.start, end: e.end,
+        startMin: toMin(e.start), endMin: toMin(e.end),
+        specials: [], sessions: [], col: 0, numCols: 1,
+      })
+    }
     const g = map.get(key)!
     if (e.type === 'special') g.specials.push(e as SpecialEvent)
     else g.sessions.push(e as Session)
   }
-  const pad = (t: string) => t.padStart(5, '0')
-  return Array.from(map.values()).sort((a, b) => pad(a.start).localeCompare(pad(b.start)))
+
+  const items = Array.from(map.values())
+    .sort((a, b) => a.startMin - b.startMin || a.endMin - b.endMin)
+
+  // 2. Greedy column assignment
+  const colEnds: number[] = []   // earliest end time per column
+  for (const item of items) {
+    const col = colEnds.findIndex(end => end <= item.startMin)
+    item.col = col === -1 ? colEnds.length : col
+    if (col === -1) colEnds.push(item.endMin)
+    else colEnds[col] = item.endMin
+  }
+
+  // 3. Compute numCols: max column span across all items that overlap this one
+  for (const item of items) {
+    const peers = items.filter(
+      o => o !== item && o.startMin < item.endMin && o.endMin > item.startMin
+    )
+    const span = peers.length > 0
+      ? Math.max(item.col, ...peers.map(o => o.col)) + 1
+      : item.col + 1
+    item.numCols = span
+    peers.forEach(o => { o.numCols = Math.max(o.numCols, span) })
+  }
+
+  return items
 }
 
-// ─── session card (used for both single and parallel) ────────────────────────
+// ─── inner components ────────────────────────────────────────────────────────
 
-function SessionCard({
-  session,
-  roomLabel,
-  accentColor,
-  showTime,
-  onSelect,
+function SingleSessionBlock({
+  session, roomLabel, accentColor, onSelect,
 }: {
   session: Session
   roomLabel: string
   accentColor: string
-  showTime: boolean
   onSelect: (s: Session) => void
 }) {
   return (
     <button
       onClick={() => onSelect(session)}
-      className="w-full text-left rounded-lg border bg-card hover:bg-muted/40 transition-colors p-3 flex flex-col gap-1.5 overflow-hidden"
+      className="w-full h-full text-left rounded-md border bg-card hover:bg-muted/40 transition-colors p-2 flex flex-col gap-1 overflow-hidden"
       style={{ borderLeftColor: accentColor, borderLeftWidth: 3 }}
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0 flex-1">
-          {showTime && (
-            <p className="text-xs tabular-nums text-muted-foreground mb-1">
-              {session.start}–{session.end}
-            </p>
-          )}
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide leading-none">
-            {session.session_id}
-          </p>
-          <p className="text-sm font-semibold leading-snug mt-1">{session.name}</p>
-        </div>
-        <Badge variant="outline" className="text-xs shrink-0 mt-0.5">{roomLabel}</Badge>
-      </div>
-      <p className="text-xs text-muted-foreground">
-        {session.presentations.length} presentation{session.presentations.length !== 1 ? 's' : ''}
+      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide leading-none truncate">
+        {session.session_id}
       </p>
+      <p className="text-xs font-semibold leading-snug line-clamp-3">{session.name}</p>
+      <Badge variant="outline" className="text-[10px] px-1 py-0 self-start">{roomLabel}</Badge>
     </button>
   )
 }
 
-// ─── parallel sessions grid ──────────────────────────────────────────────────
-
 function ParallelSessionsBlock({
-  group,
-  roomLabelMap,
-  roomColorMap,
-  onSelectSession,
+  group, roomLabelMap, onSelectSession,
 }: {
-  group: TimeSlotGroup
+  group: LayoutGroup
   roomLabelMap: Map<string, string>
-  roomColorMap: Map<string, string>
   onSelectSession: (s: Session) => void
 }) {
-  const cols = group.sessions.length <= 2
-    ? 'sm:grid-cols-2'
-    : group.sessions.length <= 4
-      ? 'sm:grid-cols-2 lg:grid-cols-4'
-      : 'sm:grid-cols-2 lg:grid-cols-3'
-
   return (
-    <div className="space-y-2">
-      {/* Time + parallel label */}
-      <div className="flex items-baseline gap-2">
-        <span className="text-xs tabular-nums font-medium text-muted-foreground">
-          {group.start}–{group.end}
-        </span>
-        <span className="text-xs text-muted-foreground">
-          · {group.sessions.length} parallel sessions
-        </span>
-      </div>
-      {/* Grid of session cards */}
-      <div className={`grid grid-cols-1 gap-2 ${cols}`}>
+    <div className="w-full h-full rounded-md border bg-card p-2 flex flex-col gap-1.5 overflow-hidden">
+      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide shrink-0">
+        Parallel sessions
+      </p>
+      <div className="flex flex-wrap gap-1 overflow-hidden">
         {group.sessions.map((s) => (
-          <SessionCard
+          <button
             key={s.session_id}
-            session={s}
-            roomLabel={roomLabelMap.get(s.room_id) ?? s.room_id}
-            accentColor={roomColorMap.get(s.room_id) ?? '#94a3b8'}
-            showTime={false}
-            onSelect={onSelectSession}
-          />
+            onClick={() => onSelectSession(s)}
+            className="inline-flex items-center gap-1 rounded border bg-muted/40 px-1.5 py-0.5 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground hover:border-foreground/30 transition-colors"
+          >
+            <span className="font-semibold text-foreground">{s.session_id}</span>
+            <span className="truncate max-w-[12ch]">{s.name}</span>
+          </button>
         ))}
       </div>
     </div>
   )
 }
 
-// ─── slide-in panel (rendered via portal so it covers the sticky header) ────
+function SpecialBlock({ event }: { event: SpecialEvent }) {
+  return (
+    <div className="w-full h-full rounded-md border border-primary/20 bg-primary/5 px-2 py-1.5 flex flex-col justify-center overflow-hidden">
+      <p className="text-xs font-medium leading-snug line-clamp-2">{event.name}</p>
+    </div>
+  )
+}
 
-function SessionPanel({
-  session,
-  roomLabel,
-  onClose,
-}: {
+// ─── slide-in panel ──────────────────────────────────────────────────────────
+
+function SessionPanel({ session, roomLabel, onClose }: {
   session: Session
   roomLabel: string
   onClose: () => void
@@ -149,10 +167,7 @@ function SessionPanel({
             <h3 className="text-base font-semibold leading-snug">{session.name}</h3>
             <Badge variant="outline" className="mt-2 text-xs">{roomLabel}</Badge>
           </div>
-          <button
-            onClick={onClose}
-            className="shrink-0 p-1 rounded-md hover:bg-muted transition-colors"
-          >
+          <button onClick={onClose} className="shrink-0 p-1 rounded-md hover:bg-muted transition-colors">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -211,20 +226,32 @@ export default function ListPage() {
     () => new Map((data?.rooms ?? []).map((r) => [r.id, r.nickname || r.label])),
     [data]
   )
-
   const roomColorMap = useMemo(
     () => new Map((data?.rooms ?? []).map((r, i) => [r.id, ROOM_COLORS[i % ROOM_COLORS.length]])),
     [data]
   )
 
+  const groups = useMemo(() => day ? buildLayout(day.events) : [], [day])
+
+  // Time range — rounded to whole hours, padded by 0 min at top and bottom
+  const { minMin, maxMin, hours } = useMemo(() => {
+    if (groups.length === 0) return { minMin: 480, maxMin: 1200, hours: [] }
+    const minMin = Math.floor(Math.min(...groups.map(g => g.startMin)) / 60) * 60
+    const maxMin = Math.ceil(Math.max(...groups.map(g => g.endMin)) / 60) * 60
+    const hrs: number[] = []
+    for (let m = minMin; m <= maxMin; m += 60) hrs.push(m)
+    return { minMin, maxMin, hours: hrs }
+  }, [groups])
+
+  const containerH = (maxMin - minMin) * PX_PER_MINUTE + 16  // 16px bottom padding
+
   if (!data || !day) return null
 
-  const groups = groupByTimeSlot(day.events)
   const goToDay = (idx: number) => navigate(`/list/${data.days[idx].date}`)
 
   return (
     <div>
-      {/* Date heading + prev/next buttons */}
+      {/* Date heading + prev/next */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-semibold">{formatDate(day.date)}</h2>
         <div className="flex items-center gap-1">
@@ -245,51 +272,86 @@ export default function ListPage() {
         </div>
       </div>
 
-      {/* Events for the active day */}
-      <div className="space-y-4">
-        {groups.map((group) => (
-          <div key={`${group.start}|${group.end}`} className="space-y-2">
+      {/* Timeline */}
+      <div className="relative" style={{ height: containerH }}>
 
-            {/* Special events */}
-            {group.specials.map((e, i) => (
-              <div
-                key={i}
-                className="rounded-md bg-primary/5 border border-primary/20 px-4 py-3 flex items-center gap-3"
+        {/* Hour labels + grid lines */}
+        {hours.map((m) => {
+          const top = (m - minMin) * PX_PER_MINUTE
+          const label = `${String(m / 60 | 0).padStart(2, '0')}:00`
+          return (
+            <div key={m} className="absolute left-0 right-0 flex items-center pointer-events-none" style={{ top }}>
+              <span
+                className="text-[11px] tabular-nums text-muted-foreground select-none leading-none"
+                style={{ width: GUTTER_W, paddingRight: 8, textAlign: 'right' }}
               >
-                <span className="shrink-0 text-xs tabular-nums text-muted-foreground w-24">
-                  {e.start}–{e.end}
-                </span>
-                <span className="flex-1 font-medium text-sm">{e.name}</span>
-                {roomLabelMap.get(e.room_id) && (
-                  <Badge variant="outline" className="text-xs shrink-0">
-                    {roomLabelMap.get(e.room_id)}
-                  </Badge>
-                )}
-              </div>
-            ))}
+                {label}
+              </span>
+              <div className="flex-1 border-t border-border/40" />
+            </div>
+          )
+        })}
 
-            {/* Single session */}
-            {group.sessions.length === 1 && (
-              <SessionCard
-                session={group.sessions[0]}
-                roomLabel={roomLabelMap.get(group.sessions[0].room_id) ?? group.sessions[0].room_id}
-                accentColor={roomColorMap.get(group.sessions[0].room_id) ?? '#94a3b8'}
-                showTime
-                onSelect={setSelectedSession}
-              />
-            )}
+        {/* Event blocks */}
+        {groups.map((g) => {
+          const top    = (g.startMin - minMin) * PX_PER_MINUTE + 2
+          const height = Math.max((g.endMin - g.startMin) * PX_PER_MINUTE - 4, 28)
+          const leftPct  = g.col / g.numCols
+          const widthPct = 1 / g.numCols
 
-            {/* Parallel sessions */}
-            {group.sessions.length > 1 && (
-              <ParallelSessionsBlock
-                group={group}
-                roomLabelMap={roomLabelMap}
-                roomColorMap={roomColorMap}
-                onSelectSession={setSelectedSession}
-              />
-            )}
-          </div>
-        ))}
+          // Within the events area (everything right of gutter):
+          //   left  = GUTTER_W + leftPct  * eventsWidth + col * COL_GAP
+          //   width = widthPct * eventsWidth - (numCols-1)*COL_GAP/numCols
+          // We can't compute eventsWidth in CSS without calc trickery, but
+          // calc(X% - Ypx) on a flex child works when the parent excludes the gutter.
+          // So we put gutter and events area as two siblings.
+
+          return (
+            <div
+              key={`${g.start}|${g.end}`}
+              className="absolute"
+              style={{
+                top,
+                height,
+                left:  `calc(${GUTTER_W}px + ${leftPct * 100}% - ${leftPct * GUTTER_W}px + ${g.col * COL_GAP}px)`,
+                right: `calc(${(1 - leftPct - widthPct) * 100}% - ${(1 - leftPct - widthPct) * GUTTER_W}px + ${(g.numCols - g.col - 1) * COL_GAP}px)`,
+              }}
+            >
+              {/* Special events take the full block */}
+              {g.specials.length > 0 && g.sessions.length === 0 && (
+                <SpecialBlock event={g.specials[0]} />
+              )}
+
+              {/* Single session */}
+              {g.sessions.length === 1 && (
+                <SingleSessionBlock
+                  session={g.sessions[0]}
+                  roomLabel={roomLabelMap.get(g.sessions[0].room_id) ?? g.sessions[0].room_id}
+                  accentColor={roomColorMap.get(g.sessions[0].room_id) ?? '#94a3b8'}
+                  onSelect={setSelectedSession}
+                />
+              )}
+
+              {/* Parallel sessions */}
+              {g.sessions.length > 1 && (
+                <ParallelSessionsBlock
+                  group={g}
+                  roomLabelMap={roomLabelMap}
+                  onSelectSession={setSelectedSession}
+                />
+              )}
+
+              {/* Mixed: specials + sessions in the same time slot (rare) */}
+              {g.specials.length > 0 && g.sessions.length > 0 && (
+                <div className="absolute inset-0 flex flex-col gap-1 overflow-hidden">
+                  {g.specials.map((e, i) => (
+                    <SpecialBlock key={i} event={e} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )
+        })}
       </div>
 
       {selectedSession && (
