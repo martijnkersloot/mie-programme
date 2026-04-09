@@ -56,7 +56,7 @@ function EventCard({ event }: EventProps<RBCEvent>) {
         className="h-full flex flex-col gap-1 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <p className="text-[10px] font-bold uppercase tracking-wide opacity-80 leading-none shrink-0">
+        <p className="text-[10px] font-bold uppercase tracking-wide leading-none shrink-0 text-muted-foreground">
           Parallel sessions
         </p>
         <div className="flex flex-wrap gap-0.5 overflow-hidden">
@@ -64,10 +64,10 @@ function EventCard({ event }: EventProps<RBCEvent>) {
             <button
               key={s.session_id}
               onClick={() => onSelect(s)}
-              className="inline-flex items-center gap-0.5 rounded border border-white/30 bg-white/10 px-1 py-0.5 text-[11px] text-white hover:bg-white/20 transition-colors"
+              className="inline-flex items-center gap-0.5 rounded border border-border bg-muted/40 px-1 py-0.5 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground hover:border-foreground/30 transition-colors"
             >
-              <span className="font-bold">{s.session_id}</span>
-              <span className="opacity-80 truncate max-w-[14ch]">{s.name}</span>
+              <span className="font-bold text-foreground">{s.session_id}</span>
+              <span className="truncate max-w-[14ch]">{s.name}</span>
             </button>
           ))}
         </div>
@@ -79,10 +79,10 @@ function EventCard({ event }: EventProps<RBCEvent>) {
   if (event.session) {
     return (
       <div className="h-full overflow-hidden leading-tight">
-        <p className="text-[10px] font-bold uppercase tracking-wide opacity-80 leading-none mb-0.5">
+        <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground leading-none mb-0.5">
           {event.session.session_id}
         </p>
-        <p className="text-xs font-semibold line-clamp-3">{event.title}</p>
+        <p className="text-xs font-semibold text-foreground line-clamp-3">{event.title}</p>
       </div>
     )
   }
@@ -268,18 +268,17 @@ export default function TimetablePage() {
           step={30}
           timeslots={2}
           style={{ height: 'calc(100vh - 220px)', minHeight: 500 }}
+          dayLayoutAlgorithm="no-overlap"
           eventPropGetter={(event) => ({
             style: {
               backgroundColor: event.isSpecial
                 ? 'hsl(221.2 83.2% 53.3% / 0.15)'
-                : event.sessions
-                  ? 'hsl(var(--muted-foreground) / 0.15)'
-                  : '#2563eb',
+                : 'white',
               color: event.isSpecial
                 ? 'hsl(221.2 83.2% 35%)'
-                : 'white',
+                : 'hsl(222.2 84% 4.9%)',
               borderRadius: '5px',
-              border: 'none',
+              border: '1px solid hsl(214.3 31.8% 91.4%)',
             },
           })}
           components={{ event: EventCard }}
