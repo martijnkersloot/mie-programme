@@ -171,8 +171,11 @@ export default function PresentationsPage() {
       <div className="rounded-lg border bg-card divide-y">
         {filtered.map((p) => {
           const roomLabel = roomLabelMap.get(p.roomId) ?? p.roomId
+          // Composite key: the data contains duplicate presentation IDs across sessions,
+          // so p.id alone is not unique enough for React reconciliation.
+          const rowKey = `${p.date}-${p.sessionId}-${p.id}`
           return (
-            <div key={p.id} className="px-4 py-3 flex flex-col gap-1">
+            <div key={rowKey} className="px-4 py-3 flex flex-col gap-1">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <Badge
