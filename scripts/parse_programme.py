@@ -221,9 +221,15 @@ def _process_table(table: list, days_map: dict, room_map: dict, state: dict) -> 
                 state["active_sessions"][offset] = sess
                 day["events"].append(sess)
 
-        # Name+time cells NOT matched to a pending ID → special events
+        # Name+time cells NOT matched to a pending ID → special events.
+        # Exception: paired demo sessions (session_id "De16-17" etc.) have a
+        # second time-block in the same column ("Demo 17" after "De16-17").
+        # Recognise this pattern and skip the spurious special event.
         for offset, (name, start, end) in name_time.items():
             if offset not in matched_sessions and name:
+                active = state["active_sessions"].get(offset)
+                if active and re.match(r"Session De\d+-\d+$", active.get("session_id", "")):
+                    continue  # second block of a paired demo — not a new event
                 room_id = _room_id_for_col(offset, room_map)
                 _add_special(day, name, start, end, room_id)
 
