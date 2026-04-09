@@ -150,7 +150,7 @@ export default function SearchPage() {
                         session.room_id}
                     </Badge>
                     <Link
-                      to={`/list/${date}?session=${encodeURIComponent(session.session_id)}`}
+                      to={`/timetable/${date}?session=${encodeURIComponent(session.session_id)}`}
                       className="text-xs text-muted-foreground hover:text-primary flex items-center gap-0.5 transition-colors"
                       title="View in schedule"
                     >

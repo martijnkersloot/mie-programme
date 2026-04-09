@@ -134,7 +134,7 @@ export default function PresentersPage() {
                 {entries.map((entry) => (
                   <Link
                     key={entry.presentationId}
-                    to={`/list/${entry.date}?session=${encodeURIComponent(entry.sessionId)}`}
+                    to={`/timetable/${entry.date}?session=${encodeURIComponent(entry.sessionId)}`}
                     className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3 px-4 py-2.5 hover:bg-muted/40 transition-colors group"
                   >
                     <div className="min-w-0 flex-1">

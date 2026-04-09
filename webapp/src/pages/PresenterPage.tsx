@@ -106,7 +106,7 @@ export default function PresenterPage() {
         {sessions.map((s) => (
           <Link
             key={`${s.date}-${s.sessionId}`}
-            to={`/list/${s.date}?session=${encodeURIComponent(s.sessionId)}`}
+            to={`/timetable/${s.date}?session=${encodeURIComponent(s.sessionId)}`}
             className="block rounded-lg border bg-card hover:bg-muted/30 transition-colors group"
           >
             {/* Session header */}

@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { Calendar, dateFnsLocalizer, type EventProps } from 'react-big-calendar'
 import { format, parse, startOfWeek, getDay } from 'date-fns'
 import { enUS } from 'date-fns/locale/en-US'
@@ -29,14 +29,9 @@ interface RBCEvent {
   start: Date
   end: Date
   session?: Session
-  roomId: string
+  roomId: string | null
   isSpecial: boolean
   sessionId?: string
-}
-
-interface RBCResource {
-  id: string
-  title: string
 }
 
 function toDate(dateStr: string, timeStr: string): Date {
@@ -60,7 +55,10 @@ export default function TimetablePage() {
   const { data } = useProgramme()
   const { date: dateParam } = useParams<{ date?: string }>()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [selectedSession, setSelectedSession] = useState<Session | null>(null)
+
+  const sessionParam = searchParams.get('session')
 
   const roomIndexMap = useMemo(() => {
     const m = new Map<string, number>()
@@ -74,24 +72,19 @@ export default function TimetablePage() {
     return m
   }, [data])
 
-  const resources = useMemo((): RBCResource[] =>
-    data?.rooms.map((r) => ({ id: r.id, title: r.nickname || r.label || r.id })) ?? [],
-    [data]
-  )
-
   const allEvents = useMemo((): RBCEvent[] => {
     if (!data) return []
     return data.days.flatMap((day) =>
       day.events
-        .filter((e) => e.start && e.end && e.room_id)
+        .filter((e) => e.start && e.end)
         .map((e) => ({
           title: e.name,
           start: toDate(day.date, e.start),
           end: toDate(day.date, e.end),
-          roomId: e.room_id,
+          roomId: e.room_id ?? null,
           isSpecial: e.type === 'special',
-          sessionId: e.type === 'session' ? e.session_id : undefined,
-          session: e.type === 'session' ? e : undefined,
+          sessionId: e.type === 'session' ? (e as Session).session_id : undefined,
+          session: e.type === 'session' ? (e as Session) : undefined,
         }))
     )
   }, [data])
@@ -114,17 +107,39 @@ export default function TimetablePage() {
     [conferenceDates, activeDateObj]
   )
 
+  const activeDay = useMemo(
+    () => data?.days.find((d) => new Date(d.date + 'T12:00:00').toDateString() === activeDateObj.toDateString()),
+    [data, activeDateObj]
+  )
+
+  // Auto-open session from ?session= param
+  useEffect(() => {
+    if (!sessionParam || !activeDay || selectedSession) return
+    for (const event of activeDay.events) {
+      if (event.type === 'session' && (event as Session).session_id === sessionParam) {
+        setSelectedSession(event as Session)
+        break
+      }
+    }
+  }, [activeDay, sessionParam])
+
   const { minTime, maxTime } = useMemo(() => {
-    const dayEvts = data?.days
-      .find((d) => new Date(d.date + 'T12:00:00').toDateString() === activeDateObj.toDateString())
-      ?.events.filter((e) => e.start && e.end) ?? []
+    const dayEvts = activeDay?.events.filter((e) => e.start && e.end) ?? []
     if (dayEvts.length === 0) return { minTime: new Date(0, 0, 0, 8, 0), maxTime: new Date(0, 0, 0, 20, 0) }
     const minH = Math.max(0, Math.min(...dayEvts.map((e) => parseInt(e.start))) - 1)
     const rawMaxH = Math.max(...dayEvts.map((e) => parseInt(e.end))) + 1
-    // Clamp to 23:59 — new Date(0,0,0,24,0) overflows to midnight and breaks the layout
     const maxTime = rawMaxH >= 24 ? new Date(0, 0, 0, 23, 59) : new Date(0, 0, 0, rawMaxH, 0)
     return { minTime: new Date(0, 0, 0, minH, 0), maxTime }
-  }, [data, activeDateObj])
+  }, [activeDay])
+
+  const handleClosePanel = () => {
+    setSelectedSession(null)
+    if (searchParams.has('session')) {
+      const next = new URLSearchParams(searchParams)
+      next.delete('session')
+      setSearchParams(next, { replace: true })
+    }
+  }
 
   const goToDay = (date: Date) => navigate(`/timetable/${date.toISOString().slice(0, 10)}`)
 
@@ -155,8 +170,8 @@ export default function TimetablePage() {
         </div>
       </div>
 
-      {/* Calendar */}
-      <Calendar<RBCEvent, RBCResource>
+      {/* Calendar — day view, no resource columns, overlapping sessions side-by-side */}
+      <Calendar<RBCEvent>
         localizer={localizer}
         events={allEvents}
         defaultView="day"
@@ -166,17 +181,13 @@ export default function TimetablePage() {
           const match = conferenceDates.find((d) => d.toDateString() === date.toDateString())
           if (match) goToDay(match)
         }}
-        resources={resources}
-        resourceIdAccessor="id"
-        resourceTitleAccessor="title"
-        resourceAccessor="roomId"
         min={minTime}
         max={maxTime}
         step={30}
         timeslots={2}
-        style={{ height: 'calc(100vh - 240px)', minHeight: 500 }}
+        style={{ height: 'calc(100vh - 220px)', minHeight: 500 }}
         eventPropGetter={(event) => {
-          const idx = roomIndexMap.get(event.roomId) ?? 0
+          const idx = event.roomId ? (roomIndexMap.get(event.roomId) ?? 0) : 0
           const color = ROOM_COLORS[idx % ROOM_COLORS.length]
           return {
             style: {
@@ -195,14 +206,16 @@ export default function TimetablePage() {
           timeGutterFormat: (date, culture, loc) => loc!.format(date, 'HH:mm', culture),
           eventTimeRangeFormat: () => '',
           dayRangeHeaderFormat: () => '',
+          dayHeaderFormat: () => '',
         }}
+        toolbar={false}
         popup
       />
 
       {/* Session detail slide-in */}
       {selectedSession && createPortal(
         <>
-          <div className="fixed inset-0 z-[200] bg-black/30" onClick={() => setSelectedSession(null)} />
+          <div className="fixed inset-0 z-[200] bg-black/30" onClick={handleClosePanel} />
           <div className="fixed inset-y-0 right-0 z-[201] w-full max-w-md bg-background border-l shadow-xl flex flex-col">
             <div className="flex items-start justify-between gap-4 p-5 border-b">
               <div>
@@ -215,7 +228,7 @@ export default function TimetablePage() {
                 </Badge>
               </div>
               <button
-                onClick={() => setSelectedSession(null)}
+                onClick={handleClosePanel}
                 className="shrink-0 p-1 rounded-md hover:bg-muted transition-colors"
               >
                 <X className="h-4 w-4" />

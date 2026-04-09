@@ -219,7 +219,7 @@ export default function PresentationsPage() {
                   />
                 </div>
                 <Link
-                  to={`/list/${p.date}?session=${encodeURIComponent(p.sessionId)}`}
+                  to={`/timetable/${p.date}?session=${encodeURIComponent(p.sessionId)}`}
                   className="shrink-0 text-muted-foreground hover:text-primary transition-colors mt-1"
                   title="View in schedule"
                 >

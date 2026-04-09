@@ -1,19 +1,27 @@
 import { useEffect, useState } from 'react'
-import { HashRouter, Routes, Route, Navigate, NavLink, useNavigate, useLocation } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate, NavLink, useNavigate, useLocation, useParams, useSearchParams } from 'react-router-dom'
 import { ProgrammeContext } from './context'
 import type { Programme } from './types'
 import TimetablePage from './pages/TimetablePage'
-import ListPage from './pages/ListPage'
 import SearchPage from './pages/SearchPage'
 import PresentersPage from './pages/PresentersPage'
 import PresenterPage from './pages/PresenterPage'
 import PresentationsPage from './pages/PresentationsPage'
 import { Skeleton } from './components/ui/skeleton'
 import { cn } from './lib/utils'
-import { BookOpen, CalendarDays, List, Menu, Search, Users, X } from 'lucide-react'
+import { BookOpen, CalendarDays, Menu, Search, Users, X } from 'lucide-react'
 
 const PROGRAMME_URL =
   'https://raw.githubusercontent.com/martijnkersloot/mie-programme/main/data/programme.json'
+
+// Redirect /list/:date?session=X → /timetable/:date?session=X
+function ListRedirect() {
+  const { date } = useParams<{ date?: string }>()
+  const [searchParams] = useSearchParams()
+  const session = searchParams.get('session')
+  const to = `/timetable${date ? `/${date}` : ''}${session ? `?session=${encodeURIComponent(session)}` : ''}`
+  return <Navigate to={to} replace />
+}
 
 // ─── header ──────────────────────────────────────────────────────────────────
 
@@ -48,12 +56,6 @@ function Header() {
 
           {/* Desktop nav links */}
           <nav className="hidden md:flex items-center gap-1 ml-2">
-            <NavLink to="/list" className={({ isActive }) =>
-              navLinkClass({ isActive: isActive || location.pathname.startsWith('/list') })
-            }>
-              <List className="h-3.5 w-3.5" />
-              List
-            </NavLink>
             <NavLink to="/timetable" className={navLinkClass}>
               <CalendarDays className="h-3.5 w-3.5" />
               Timetable
@@ -97,12 +99,6 @@ function Header() {
         {/* Mobile nav menu */}
         {mobileOpen && (
           <nav className="md:hidden border-t py-2 flex flex-col gap-1">
-            <NavLink to="/list" className={({ isActive }) =>
-              navLinkClass({ isActive: isActive || location.pathname.startsWith('/list') })
-            }>
-              <List className="h-4 w-4" />
-              List
-            </NavLink>
             <NavLink to="/timetable" className={navLinkClass}>
               <CalendarDays className="h-4 w-4" />
               Timetable
@@ -175,11 +171,11 @@ export default function App() {
           )}
           {!loading && !error && data && (
             <Routes>
-              <Route path="/" element={<Navigate to="/list" replace />} />
+              <Route path="/" element={<Navigate to="/timetable" replace />} />
               <Route path="/timetable" element={<TimetablePage />} />
               <Route path="/timetable/:date" element={<TimetablePage />} />
-              <Route path="/list" element={<ListPage />} />
-              <Route path="/list/:date" element={<ListPage />} />
+              <Route path="/list" element={<Navigate to="/timetable" replace />} />
+              <Route path="/list/:date" element={<ListRedirect />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/presenters" element={<PresentersPage />} />
               <Route path="/presenters/:name" element={<PresenterPage />} />
