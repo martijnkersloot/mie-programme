@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 import { HashRouter, Routes, Route, Navigate, NavLink, useNavigate, useLocation } from 'react-router-dom'
-import { ProgrammeContext } from './context'
+import { ProgrammeContext, useProgramme } from './context'
 import type { Programme } from './types'
-import TimetablePage from './pages/TimetablePage'
 import ListPage from './pages/ListPage'
 import SearchPage from './pages/SearchPage'
 import PresentersPage from './pages/PresentersPage'
@@ -10,7 +9,7 @@ import PresenterPage from './pages/PresenterPage'
 import PresentationsPage from './pages/PresentationsPage'
 import { Skeleton } from './components/ui/skeleton'
 import { cn } from './lib/utils'
-import { BookOpen, CalendarDays, List, Menu, Search, Users, X } from 'lucide-react'
+import { BookOpen, List, Menu, Search, Users, X } from 'lucide-react'
 
 const PROGRAMME_URL =
   'https://raw.githubusercontent.com/martijnkersloot/mie-programme/main/data/programme.json'
@@ -53,10 +52,6 @@ function Header() {
             }>
               <List className="h-3.5 w-3.5" />
               List
-            </NavLink>
-            <NavLink to="/timetable" className={navLinkClass}>
-              <CalendarDays className="h-3.5 w-3.5" />
-              Timetable
             </NavLink>
             <NavLink to="/presenters" className={navLinkClass}>
               <Users className="h-3.5 w-3.5" />
@@ -103,10 +98,6 @@ function Header() {
               <List className="h-4 w-4" />
               List
             </NavLink>
-            <NavLink to="/timetable" className={navLinkClass}>
-              <CalendarDays className="h-4 w-4" />
-              Timetable
-            </NavLink>
             <NavLink to="/presenters" className={navLinkClass}>
               <Users className="h-4 w-4" />
               Presenters
@@ -124,11 +115,26 @@ function Header() {
 
 // ─── layout ──────────────────────────────────────────────────────────────────
 
+function ImportFooter() {
+  const { data } = useProgramme()
+  if (!data?.meta) return null
+  return (
+    <footer className="border-t bg-background sticky bottom-0 z-10">
+      <p className="max-w-7xl mx-auto px-4 py-2 text-xs text-muted-foreground text-center">
+        Last import: {new Date(data.meta.imported_at).toLocaleString()} &middot;{' '}
+        Source: {data.meta.source_filename} (modified{' '}
+        {new Date(data.meta.source_file_modified).toLocaleDateString()})
+      </p>
+    </footer>
+  )
+}
+
 function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Header />
-      <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-6">{children}</main>
+      <ImportFooter />
     </div>
   )
 }
@@ -176,8 +182,6 @@ export default function App() {
           {!loading && !error && data && (
             <Routes>
               <Route path="/" element={<Navigate to="/list" replace />} />
-              <Route path="/timetable" element={<TimetablePage />} />
-              <Route path="/timetable/:date" element={<TimetablePage />} />
               <Route path="/list" element={<ListPage />} />
               <Route path="/list/:date" element={<ListPage />} />
               <Route path="/search" element={<SearchPage />} />
