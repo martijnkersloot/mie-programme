@@ -47,6 +47,7 @@ export interface Meta {
   imported_at: string
   source_filename: string
   source_file_modified: string
+  gdrive_id?: string
 }
 
 export interface Programme {

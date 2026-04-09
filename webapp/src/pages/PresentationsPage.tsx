@@ -107,8 +107,12 @@ export default function PresentationsPage() {
         }
       }
     }
-    // Sort alphabetically by title
-    return result.sort((a, b) => a.title.localeCompare(b.title))
+    // Sort by date, then start time
+    return result.sort((a, b) => {
+      const dateCmp = a.date.localeCompare(b.date)
+      if (dateCmp !== 0) return dateCmp
+      return a.start.localeCompare(b.start)
+    })
   }, [data])
 
   // Presenter options (sorted A–Z)
@@ -234,13 +238,6 @@ export default function PresentationsPage() {
         })}
       </div>
 
-      {data.meta && (
-        <p className="mt-6 text-xs text-muted-foreground text-center">
-          Last import: {new Date(data.meta.imported_at).toLocaleString()} &middot;{' '}
-          Source: {data.meta.source_filename} (modified{' '}
-          {new Date(data.meta.source_file_modified).toLocaleDateString()})
-        </p>
-      )}
     </div>
   )
 }

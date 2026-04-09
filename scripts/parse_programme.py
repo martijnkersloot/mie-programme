@@ -349,14 +349,23 @@ def parse_pdf(pdf_path: str) -> dict:
 # Google Drive download
 # ---------------------------------------------------------------------------
 
-def download_from_gdrive(gdrive_id: str, dest: str) -> None:
+def download_from_gdrive(gdrive_id: str, dest: str) -> str:
+    """Download file from Google Drive to dest and return the original filename."""
     try:
         import gdown
     except ImportError:
         sys.exit("gdown is required for Google Drive downloads:  pip install gdown")
     url = f"https://drive.google.com/file/d/{gdrive_id}/view"
     print(f"Downloading PDF from Google Drive ({gdrive_id}) …")
-    gdown.download(url=url, output=dest, fuzzy=True, quiet=False)
+    # Download into a temp dir so gdown preserves the original filename
+    tmp_dir = tempfile.mkdtemp()
+    result = gdown.download(url=url, output=tmp_dir + "/", fuzzy=True, quiet=False)
+    if not result:
+        sys.exit("gdown failed to download the file")
+    original_name = Path(result).name
+    # Move to the requested destination path
+    Path(result).rename(dest)
+    return original_name
 
 
 # ---------------------------------------------------------------------------
@@ -388,9 +397,9 @@ def main():
         tmp = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
         tmp.close()
         tmp_pdf = tmp.name
-        download_from_gdrive(args.gdrive_id, tmp_pdf)
+        original_name = download_from_gdrive(args.gdrive_id, tmp_pdf)
         pdf_path = tmp_pdf
-        source_label = f"gdrive:{args.gdrive_id}"
+        source_label = original_name
 
     if not Path(pdf_path).exists():
         sys.exit(f"PDF not found: {pdf_path}")
@@ -399,13 +408,16 @@ def main():
     programme = parse_pdf(pdf_path)
 
     stat = Path(pdf_path).stat()
-    programme["meta"] = {
+    meta: dict = {
         "imported_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "source_filename": source_label,
         "source_file_modified": datetime.datetime.fromtimestamp(
             stat.st_mtime, tz=datetime.timezone.utc
         ).isoformat(),
     }
+    if not args.pdf:
+        meta["gdrive_id"] = args.gdrive_id
+    programme["meta"] = meta
 
     out_path = Path(args.output)
     out_path.parent.mkdir(parents=True, exist_ok=True)
