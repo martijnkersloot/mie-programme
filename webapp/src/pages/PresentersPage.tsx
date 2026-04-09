@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { useMemo } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useProgramme } from '@/context'
 import { formatDateShort } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
@@ -47,7 +47,17 @@ function buildPresenterMap(
 
 export default function PresentersPage() {
   const { data } = useProgramme()
-  const [filter, setFilter] = useState('')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const filter = searchParams.get('q') ?? ''
+
+  const setFilter = (value: string) => {
+    setSearchParams((p) => {
+      const next = new URLSearchParams(p)
+      if (value) next.set('q', value)
+      else next.delete('q')
+      return next
+    }, { replace: true })
+  }
 
   const roomLabelMap = useMemo(
     () => new Map((data?.rooms ?? []).map((r) => [r.id, r.nickname || r.label])),

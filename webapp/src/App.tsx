@@ -7,9 +7,10 @@ import ListPage from './pages/ListPage'
 import SearchPage from './pages/SearchPage'
 import PresentersPage from './pages/PresentersPage'
 import PresenterPage from './pages/PresenterPage'
+import PresentationsPage from './pages/PresentationsPage'
 import { Skeleton } from './components/ui/skeleton'
 import { cn } from './lib/utils'
-import { CalendarDays, List, Menu, Search, Users, X } from 'lucide-react'
+import { BookOpen, CalendarDays, List, Menu, Search, Users, X } from 'lucide-react'
 
 const PROGRAMME_URL =
   'https://raw.githubusercontent.com/martijnkersloot/mie-programme/main/data/programme.json'
@@ -61,6 +62,10 @@ function Header() {
               <Users className="h-3.5 w-3.5" />
               Presenters
             </NavLink>
+            <NavLink to="/presentations" className={navLinkClass}>
+              <BookOpen className="h-3.5 w-3.5" />
+              Presentations
+            </NavLink>
           </nav>
 
           <div className="flex-1" />
@@ -105,6 +110,10 @@ function Header() {
             <NavLink to="/presenters" className={navLinkClass}>
               <Users className="h-4 w-4" />
               Presenters
+            </NavLink>
+            <NavLink to="/presentations" className={navLinkClass}>
+              <BookOpen className="h-4 w-4" />
+              Presentations
             </NavLink>
           </nav>
         )}
@@ -174,6 +183,7 @@ export default function App() {
               <Route path="/search" element={<SearchPage />} />
               <Route path="/presenters" element={<PresentersPage />} />
               <Route path="/presenters/:name" element={<PresenterPage />} />
+              <Route path="/presentations" element={<PresentationsPage />} />
               <Route path="*" element={<Navigate to="/list" replace />} />
             </Routes>
           )}
