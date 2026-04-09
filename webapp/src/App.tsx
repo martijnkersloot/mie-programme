@@ -118,12 +118,25 @@ function Header() {
 function ImportFooter() {
   const { data } = useProgramme()
   if (!data?.meta) return null
+
+  const { source_filename, imported_at, source_file_modified } = data.meta
+  const gdrive_match = source_filename.match(/^gdrive:(.+)$/)
+  const source = gdrive_match ? (
+    <a
+      href={`https://drive.google.com/file/d/${gdrive_match[1]}/view`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="underline hover:text-foreground transition-colors"
+    >
+      {source_filename}
+    </a>
+  ) : source_filename
+
   return (
     <footer className="border-t bg-background sticky bottom-0 z-10">
       <p className="max-w-7xl mx-auto px-4 py-2 text-xs text-muted-foreground text-center">
-        Last import: {new Date(data.meta.imported_at).toLocaleString()} &middot;{' '}
-        Source: {data.meta.source_filename} (modified{' '}
-        {new Date(data.meta.source_file_modified).toLocaleDateString()})
+        Last import: {new Date(imported_at).toLocaleString()} &middot;{' '}
+        Source: {source} (modified {new Date(source_file_modified).toLocaleString()})
       </p>
     </footer>
   )
