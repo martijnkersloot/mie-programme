@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { useProgramme } from '@/context'
 import { formatDate } from '@/lib/utils'
 import PresentationRow from '@/components/PresentationRow'
@@ -145,16 +145,41 @@ export default function ListPage() {
   const { data } = useProgramme()
   const { date: dateParam } = useParams<{ date?: string }>()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [selectedSession, setSelectedSession] = useState<Session | null>(null)
 
-  if (!data) return null
+  const sessionParam = searchParams.get('session')
+
+  const dayIdx = data
+    ? dateParam
+      ? Math.max(0, data.days.findIndex((d) => d.date === dateParam))
+      : 0
+    : 0
+  const day = data?.days[dayIdx]
+
+  useEffect(() => {
+    if (!sessionParam || !day || selectedSession) return
+    for (const event of day.events) {
+      if (event.type === 'session' && (event as Session).session_id === sessionParam) {
+        setSelectedSession(event as Session)
+        break
+      }
+    }
+  }, [day, sessionParam])
+
+  const handleClosePanel = () => {
+    setSelectedSession(null)
+    if (searchParams.has('session')) {
+      const next = new URLSearchParams(searchParams)
+      next.delete('session')
+      setSearchParams(next, { replace: true })
+    }
+  }
+
+  if (!data || !day) return null
 
   const roomLabelMap = new Map(data.rooms.map((r) => [r.id, r.nickname || r.label]))
 
-  const dayIdx = dateParam
-    ? Math.max(0, data.days.findIndex((d) => d.date === dateParam))
-    : 0
-  const day = data.days[dayIdx]
   const groups = groupByTimeSlot(day.events)
   const goToDay = (idx: number) => navigate(`/list/${data.days[idx].date}`)
 
@@ -223,7 +248,7 @@ export default function ListPage() {
         <SessionPanel
           session={selectedSession}
           roomLabel={roomLabelMap.get(selectedSession.room_id) ?? selectedSession.room_id}
-          onClose={() => setSelectedSession(null)}
+          onClose={handleClosePanel}
         />
       )}
     </div>
