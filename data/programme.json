@@ -4474,55 +4474,6 @@
         },
         {
           "type": "special",
-          "name": "Demo 17",
-          "room_id": "room-1",
-          "start": "10:30",
-          "end": "11:00"
-        },
-        {
-          "type": "special",
-          "name": "Demo 19",
-          "room_id": "room-2",
-          "start": "10:30",
-          "end": "11:00"
-        },
-        {
-          "type": "special",
-          "name": "Demo 21",
-          "room_id": "room-3",
-          "start": "10:30",
-          "end": "11:00"
-        },
-        {
-          "type": "special",
-          "name": "Demo 23",
-          "room_id": "room-4",
-          "start": "10:30",
-          "end": "11:00"
-        },
-        {
-          "type": "special",
-          "name": "Demo 25",
-          "room_id": "room-5",
-          "start": "10:30",
-          "end": "11:00"
-        },
-        {
-          "type": "special",
-          "name": "Demo 27",
-          "room_id": "room-6",
-          "start": "10:30",
-          "end": "11:00"
-        },
-        {
-          "type": "special",
-          "name": "Demo 29",
-          "room_id": "room-7",
-          "start": "10:30",
-          "end": "11:00"
-        },
-        {
-          "type": "special",
           "name": "Coffee break",
           "room_id": "other",
           "start": "11:00",
