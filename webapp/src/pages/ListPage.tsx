@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { useProgramme } from '@/context'
@@ -7,6 +7,13 @@ import PresentationRow from '@/components/PresentationRow'
 import { Badge } from '@/components/ui/badge'
 import type { Event, Session, SpecialEvent } from '@/types'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
+
+// ─── constants ───────────────────────────────────────────────────────────────
+
+const ROOM_COLORS = [
+  '#2563eb', '#0891b2', '#059669', '#d97706',
+  '#dc2626', '#7c3aed', '#db2777', '#ea580c', '#65a30d',
+]
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -30,66 +37,90 @@ function groupByTimeSlot(events: Event[]): TimeSlotGroup[] {
   return Array.from(map.values()).sort((a, b) => pad(a.start).localeCompare(pad(b.start)))
 }
 
-// ─── components ─────────────────────────────────────────────────────────────
+// ─── session card (used for both single and parallel) ────────────────────────
 
-function SessionRow({ session, roomLabel, onSelect }: {
+function SessionCard({
+  session,
+  roomLabel,
+  accentColor,
+  showTime,
+  onSelect,
+}: {
   session: Session
   roomLabel: string
+  accentColor: string
+  showTime: boolean
   onSelect: (s: Session) => void
 }) {
   return (
     <button
-      className="w-full border rounded-lg bg-card flex items-center gap-3 px-4 py-3 text-left hover:bg-muted/40 transition-colors"
       onClick={() => onSelect(session)}
+      className="w-full text-left rounded-lg border bg-card hover:bg-muted/40 transition-colors p-3 flex flex-col gap-1.5 overflow-hidden"
+      style={{ borderLeftColor: accentColor, borderLeftWidth: 3 }}
     >
-      <span className="shrink-0 text-xs tabular-nums text-muted-foreground w-24">
-        {session.start}–{session.end}
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold leading-snug">{session.name}</p>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          {session.presentations.length} presentation{session.presentations.length !== 1 ? 's' : ''}
-        </p>
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          {showTime && (
+            <p className="text-xs tabular-nums text-muted-foreground mb-1">
+              {session.start}–{session.end}
+            </p>
+          )}
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide leading-none">
+            {session.session_id}
+          </p>
+          <p className="text-sm font-semibold leading-snug mt-1">{session.name}</p>
+        </div>
+        <Badge variant="outline" className="text-xs shrink-0 mt-0.5">{roomLabel}</Badge>
       </div>
-      <Badge variant="outline" className="text-xs shrink-0">{roomLabel}</Badge>
+      <p className="text-xs text-muted-foreground">
+        {session.presentations.length} presentation{session.presentations.length !== 1 ? 's' : ''}
+      </p>
     </button>
   )
 }
 
+// ─── parallel sessions grid ──────────────────────────────────────────────────
+
 function ParallelSessionsBlock({
   group,
+  roomLabelMap,
+  roomColorMap,
   onSelectSession,
 }: {
   group: TimeSlotGroup
+  roomLabelMap: Map<string, string>
+  roomColorMap: Map<string, string>
   onSelectSession: (s: Session) => void
 }) {
+  const cols = group.sessions.length <= 2
+    ? 'sm:grid-cols-2'
+    : group.sessions.length <= 4
+      ? 'sm:grid-cols-2 lg:grid-cols-4'
+      : 'sm:grid-cols-2 lg:grid-cols-3'
+
   return (
-    <div className="border rounded-lg bg-card overflow-hidden">
-      <div className="flex items-start gap-3 px-4 py-3">
-        {/* Time column */}
-        <span className="shrink-0 text-xs tabular-nums text-muted-foreground w-24 pt-[3px]">
+    <div className="space-y-2">
+      {/* Time + parallel label */}
+      <div className="flex items-baseline gap-2">
+        <span className="text-xs tabular-nums font-medium text-muted-foreground">
           {group.start}–{group.end}
         </span>
-
-        {/* Title + pills share the same column so pills align under the title */}
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold">Parallel sessions</p>
-          <p className="text-xs text-muted-foreground mt-0.5 mb-2.5">
-            {group.sessions.length} sessions running simultaneously
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {group.sessions.map((s) => (
-              <button
-                key={s.session_id}
-                onClick={() => onSelectSession(s)}
-                className="inline-flex items-center gap-1 rounded-md border bg-muted/40 px-2 py-0.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground hover:border-foreground/30 transition-colors"
-              >
-                <span className="font-medium text-foreground">{s.session_id}</span>
-                {s.name}
-              </button>
-            ))}
-          </div>
-        </div>
+        <span className="text-xs text-muted-foreground">
+          · {group.sessions.length} parallel sessions
+        </span>
+      </div>
+      {/* Grid of session cards */}
+      <div className={`grid grid-cols-1 gap-2 ${cols}`}>
+        {group.sessions.map((s) => (
+          <SessionCard
+            key={s.session_id}
+            session={s}
+            roomLabel={roomLabelMap.get(s.room_id) ?? s.room_id}
+            accentColor={roomColorMap.get(s.room_id) ?? '#94a3b8'}
+            showTime={false}
+            onSelect={onSelectSession}
+          />
+        ))}
       </div>
     </div>
   )
@@ -176,9 +207,17 @@ export default function ListPage() {
     }
   }
 
-  if (!data || !day) return null
+  const roomLabelMap = useMemo(
+    () => new Map((data?.rooms ?? []).map((r) => [r.id, r.nickname || r.label])),
+    [data]
+  )
 
-  const roomLabelMap = new Map(data.rooms.map((r) => [r.id, r.nickname || r.label]))
+  const roomColorMap = useMemo(
+    () => new Map((data?.rooms ?? []).map((r, i) => [r.id, ROOM_COLORS[i % ROOM_COLORS.length]])),
+    [data]
+  )
+
+  if (!data || !day) return null
 
   const groups = groupByTimeSlot(day.events)
   const goToDay = (idx: number) => navigate(`/list/${data.days[idx].date}`)
@@ -207,9 +246,11 @@ export default function ListPage() {
       </div>
 
       {/* Events for the active day */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         {groups.map((group) => (
-          <div key={`${group.start}|${group.end}`} className="space-y-3">
+          <div key={`${group.start}|${group.end}`} className="space-y-2">
+
+            {/* Special events */}
             {group.specials.map((e, i) => (
               <div
                 key={i}
@@ -227,16 +268,23 @@ export default function ListPage() {
               </div>
             ))}
 
+            {/* Single session */}
             {group.sessions.length === 1 && (
-              <SessionRow
+              <SessionCard
                 session={group.sessions[0]}
                 roomLabel={roomLabelMap.get(group.sessions[0].room_id) ?? group.sessions[0].room_id}
+                accentColor={roomColorMap.get(group.sessions[0].room_id) ?? '#94a3b8'}
+                showTime
                 onSelect={setSelectedSession}
               />
             )}
+
+            {/* Parallel sessions */}
             {group.sessions.length > 1 && (
               <ParallelSessionsBlock
                 group={group}
+                roomLabelMap={roomLabelMap}
+                roomColorMap={roomColorMap}
                 onSelectSession={setSelectedSession}
               />
             )}
