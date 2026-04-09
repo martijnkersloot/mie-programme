@@ -56,15 +56,15 @@ function EventCard({ event }: EventProps<RBCEvent>) {
         className="h-full flex flex-col gap-1 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <p className="text-[10px] font-bold uppercase tracking-wide leading-none shrink-0 text-muted-foreground">
+        <p className="text-[10px] font-bold uppercase tracking-wide leading-none shrink-0 text-muted-foreground mb-1">
           Parallel sessions
         </p>
-        <div className="flex flex-wrap gap-0.5 overflow-hidden">
+        <div className="flex flex-wrap gap-1 overflow-hidden">
           {event.sessions.map((s) => (
             <button
               key={s.session_id}
               onClick={() => onSelect(s)}
-              className="inline-flex items-center gap-0.5 rounded border border-border bg-muted/40 px-1 py-0.5 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground hover:border-foreground/30 transition-colors"
+              className="inline-flex items-center gap-1 rounded border border-border bg-muted/40 px-1.5 py-0.5 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground hover:border-foreground/30 transition-colors"
             >
               <span className="font-bold text-foreground">{s.session_id}</span>
               <span className="truncate max-w-[14ch]">{s.name}</span>
@@ -79,10 +79,10 @@ function EventCard({ event }: EventProps<RBCEvent>) {
   if (event.session) {
     return (
       <div className="h-full overflow-hidden leading-tight">
-        <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground leading-none mb-0.5">
+        <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground leading-none mb-1">
           {event.session.session_id}
         </p>
-        <p className="text-xs font-semibold text-foreground line-clamp-3">{event.title}</p>
+        <p className="text-sm font-semibold text-foreground line-clamp-3">{event.title}</p>
       </div>
     )
   }

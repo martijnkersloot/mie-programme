@@ -81,14 +81,14 @@
 }
 
 .rbc-time-slot {
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   color: hsl(var(--muted-foreground));
 }
 
 /* Time grid */
 .rbc-timeslot-group {
   border-bottom-color: hsl(var(--border));
-  min-height: 48px;
+  min-height: 80px;
 }
 
 .rbc-time-content {
@@ -128,14 +128,19 @@
 
 /* Events */
 .rbc-event {
-  border-radius: 5px !important;
+  border-radius: 6px !important;
   border: none !important;
-  padding: 3px 6px !important;
+  padding: 6px 10px !important;
   font-size: 0.75rem;
-  line-height: 1.3;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.15);
+  line-height: 1.4;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.08);
   cursor: pointer;
   transition: filter 0.1s;
+}
+
+/* Extra margin between side-by-side events */
+.rbc-day-slot .rbc-event {
+  margin-right: 4px;
 }
 
 .rbc-event:hover {
