@@ -5,7 +5,8 @@ import type { Programme } from './types'
 import TimetablePage from './pages/TimetablePage'
 import ListPage from './pages/ListPage'
 import SearchPage from './pages/SearchPage'
-import AuthorsPage from './pages/AuthorsPage'
+import PresentersPage from './pages/PresentersPage'
+import PresenterPage from './pages/PresenterPage'
 import { Skeleton } from './components/ui/skeleton'
 import { cn } from './lib/utils'
 import { CalendarDays, List, Menu, Search, Users, X } from 'lucide-react'
@@ -56,9 +57,9 @@ function Header() {
               <CalendarDays className="h-3.5 w-3.5" />
               Timetable
             </NavLink>
-            <NavLink to="/authors" className={navLinkClass}>
+            <NavLink to="/presenters" className={navLinkClass}>
               <Users className="h-3.5 w-3.5" />
-              Authors
+              Presenters
             </NavLink>
           </nav>
 
@@ -101,9 +102,9 @@ function Header() {
               <CalendarDays className="h-4 w-4" />
               Timetable
             </NavLink>
-            <NavLink to="/authors" className={navLinkClass}>
+            <NavLink to="/presenters" className={navLinkClass}>
               <Users className="h-4 w-4" />
-              Authors
+              Presenters
             </NavLink>
           </nav>
         )}
@@ -171,7 +172,8 @@ export default function App() {
               <Route path="/list" element={<ListPage />} />
               <Route path="/list/:date" element={<ListPage />} />
               <Route path="/search" element={<SearchPage />} />
-              <Route path="/authors" element={<AuthorsPage />} />
+              <Route path="/presenters" element={<PresentersPage />} />
+              <Route path="/presenters/:name" element={<PresenterPage />} />
               <Route path="*" element={<Navigate to="/list" replace />} />
             </Routes>
           )}

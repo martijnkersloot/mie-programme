@@ -2,6 +2,7 @@ import { Badge } from '@/components/ui/badge'
 import type { BadgeProps } from '@/components/ui/badge'
 import type { Presentation, PresentationType } from '@/types'
 import { cn } from '@/lib/utils'
+import PresenterLink from '@/components/PresenterLink'
 
 function typeBadgeVariant(type: PresentationType): BadgeProps['variant'] {
   switch (type) {
@@ -30,9 +31,10 @@ export default function PresentationRow({ presentation, compact }: PresentationR
       <p className={cn('font-medium leading-snug', compact ? 'text-xs' : 'text-sm')}>
         {presentation.title}
       </p>
-      <p className={cn('text-muted-foreground mt-0.5', compact ? 'text-[10px]' : 'text-xs')}>
-        {presentation.presenter}
-      </p>
+      <PresenterLink
+        name={presentation.presenter}
+        className={cn('text-muted-foreground mt-0.5 block', compact ? 'text-[10px]' : 'text-xs')}
+      />
     </div>
   )
 }
