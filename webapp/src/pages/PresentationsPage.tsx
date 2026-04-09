@@ -233,6 +233,14 @@ export default function PresentationsPage() {
           )
         })}
       </div>
+
+      {data.meta && (
+        <p className="mt-6 text-xs text-muted-foreground text-center">
+          Last import: {new Date(data.meta.imported_at).toLocaleString()} &middot;{' '}
+          Source: {data.meta.source_filename} (modified{' '}
+          {new Date(data.meta.source_file_modified).toLocaleDateString()})
+        </p>
+      )}
     </div>
   )
 }

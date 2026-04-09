@@ -12,6 +12,7 @@ Usage:
 """
 
 import argparse
+import datetime
 import json
 import os
 import re
@@ -382,18 +383,29 @@ def main():
     tmp_pdf: str | None = None
     if args.pdf:
         pdf_path = args.pdf
+        source_label = Path(pdf_path).name
     else:
         tmp = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
         tmp.close()
         tmp_pdf = tmp.name
         download_from_gdrive(args.gdrive_id, tmp_pdf)
         pdf_path = tmp_pdf
+        source_label = f"gdrive:{args.gdrive_id}"
 
     if not Path(pdf_path).exists():
         sys.exit(f"PDF not found: {pdf_path}")
 
     print(f"Parsing {pdf_path} …")
     programme = parse_pdf(pdf_path)
+
+    stat = Path(pdf_path).stat()
+    programme["meta"] = {
+        "imported_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "source_filename": source_label,
+        "source_file_modified": datetime.datetime.fromtimestamp(
+            stat.st_mtime, tz=datetime.timezone.utc
+        ).isoformat(),
+    }
 
     out_path = Path(args.output)
     out_path.parent.mkdir(parents=True, exist_ok=True)
