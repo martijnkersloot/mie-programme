@@ -120,8 +120,10 @@ export default function TimetablePage() {
       ?.events.filter((e) => e.start && e.end) ?? []
     if (dayEvts.length === 0) return { minTime: new Date(0, 0, 0, 8, 0), maxTime: new Date(0, 0, 0, 20, 0) }
     const minH = Math.max(0, Math.min(...dayEvts.map((e) => parseInt(e.start))) - 1)
-    const maxH = Math.min(24, Math.max(...dayEvts.map((e) => parseInt(e.end))) + 1)
-    return { minTime: new Date(0, 0, 0, minH, 0), maxTime: new Date(0, 0, 0, maxH, 0) }
+    const rawMaxH = Math.max(...dayEvts.map((e) => parseInt(e.end))) + 1
+    // Clamp to 23:59 — new Date(0,0,0,24,0) overflows to midnight and breaks the layout
+    const maxTime = rawMaxH >= 24 ? new Date(0, 0, 0, 23, 59) : new Date(0, 0, 0, rawMaxH, 0)
+    return { minTime: new Date(0, 0, 0, minH, 0), maxTime }
   }, [data, activeDateObj])
 
   const goToDay = (date: Date) => navigate(`/timetable/${date.toISOString().slice(0, 10)}`)
