@@ -119,11 +119,10 @@ function ImportFooter() {
   const { data } = useProgramme()
   if (!data?.meta) return null
 
-  const { source_filename, imported_at, source_file_modified } = data.meta
-  const gdrive_match = source_filename.match(/^gdrive:(.+)$/)
-  const source = gdrive_match ? (
+  const { source_filename, imported_at, source_file_modified, gdrive_id } = data.meta
+  const source = gdrive_id ? (
     <a
-      href={`https://drive.google.com/file/d/${gdrive_match[1]}/view`}
+      href={`https://drive.google.com/file/d/${gdrive_id}/view`}
       target="_blank"
       rel="noopener noreferrer"
       className="underline hover:text-foreground transition-colors"
