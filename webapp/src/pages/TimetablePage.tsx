@@ -75,28 +75,30 @@ export default function TimetablePage() {
   }, [data])
 
   const resources = useMemo((): RBCResource[] =>
-    data?.rooms.map((r) => ({ id: r.id, title: r.nickname || r.label })) ?? [],
+    data?.rooms.map((r) => ({ id: r.id, title: r.nickname || r.label || r.id })) ?? [],
     [data]
   )
 
   const allEvents = useMemo((): RBCEvent[] => {
     if (!data) return []
     return data.days.flatMap((day) =>
-      day.events.map((e) => ({
-        title: e.name,
-        start: toDate(day.date, e.start),
-        end: toDate(day.date, e.end),
-        roomId: e.room_id,
-        isSpecial: e.type === 'special',
-        sessionId: e.type === 'session' ? e.session_id : undefined,
-        session: e.type === 'session' ? e : undefined,
-      }))
+      day.events
+        .filter((e) => e.start && e.end && e.room_id)
+        .map((e) => ({
+          title: e.name,
+          start: toDate(day.date, e.start),
+          end: toDate(day.date, e.end),
+          roomId: e.room_id,
+          isSpecial: e.type === 'special',
+          sessionId: e.type === 'session' ? e.session_id : undefined,
+          session: e.type === 'session' ? e : undefined,
+        }))
     )
   }, [data])
 
   const { minTime, maxTime } = useMemo(() => {
     if (!data) return { minTime: new Date(0, 0, 0, 8, 0), maxTime: new Date(0, 0, 0, 20, 0) }
-    const allEvts = data.days.flatMap((d) => d.events)
+    const allEvts = data.days.flatMap((d) => d.events).filter((e) => e.start && e.end)
     const minH = Math.max(0, Math.min(...allEvts.map((e) => parseInt(e.start))) - 1)
     const maxH = Math.min(24, Math.max(...allEvts.map((e) => parseInt(e.end))) + 1)
     return { minTime: new Date(0, 0, 0, minH, 0), maxTime: new Date(0, 0, 0, maxH, 0) }
