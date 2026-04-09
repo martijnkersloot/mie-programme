@@ -45,15 +45,15 @@ function Header() {
 
           {/* Desktop nav links */}
           <nav className="hidden md:flex items-center gap-1 ml-2">
-            <NavLink to="/timetable" className={navLinkClass}>
-              <CalendarDays className="h-3.5 w-3.5" />
-              Timetable
-            </NavLink>
             <NavLink to="/list" className={({ isActive }) =>
               navLinkClass({ isActive: isActive || location.pathname.startsWith('/list') })
             }>
               <List className="h-3.5 w-3.5" />
               List
+            </NavLink>
+            <NavLink to="/timetable" className={navLinkClass}>
+              <CalendarDays className="h-3.5 w-3.5" />
+              Timetable
             </NavLink>
           </nav>
 
@@ -86,15 +86,15 @@ function Header() {
         {/* Mobile nav menu */}
         {mobileOpen && (
           <nav className="md:hidden border-t py-2 flex flex-col gap-1">
-            <NavLink to="/timetable" className={navLinkClass}>
-              <CalendarDays className="h-4 w-4" />
-              Timetable
-            </NavLink>
             <NavLink to="/list" className={({ isActive }) =>
               navLinkClass({ isActive: isActive || location.pathname.startsWith('/list') })
             }>
               <List className="h-4 w-4" />
               List
+            </NavLink>
+            <NavLink to="/timetable" className={navLinkClass}>
+              <CalendarDays className="h-4 w-4" />
+              Timetable
             </NavLink>
           </nav>
         )}
