@@ -5,9 +5,10 @@ import type { Programme } from './types'
 import TimetablePage from './pages/TimetablePage'
 import ListPage from './pages/ListPage'
 import SearchPage from './pages/SearchPage'
+import AuthorsPage from './pages/AuthorsPage'
 import { Skeleton } from './components/ui/skeleton'
 import { cn } from './lib/utils'
-import { CalendarDays, List, Menu, Search, X } from 'lucide-react'
+import { CalendarDays, List, Menu, Search, Users, X } from 'lucide-react'
 
 const PROGRAMME_URL =
   'https://raw.githubusercontent.com/martijnkersloot/mie-programme/main/data/programme.json'
@@ -35,7 +36,7 @@ function Header() {
   const searchActive = location.pathname === '/search'
 
   return (
-    <header className="border-b bg-background sticky top-0 z-10 shadow-sm">
+    <header className="border-b bg-background sticky top-0 z-20 shadow-sm">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center h-14 gap-4">
           {/* Logo */}
@@ -54,6 +55,10 @@ function Header() {
             <NavLink to="/timetable" className={navLinkClass}>
               <CalendarDays className="h-3.5 w-3.5" />
               Timetable
+            </NavLink>
+            <NavLink to="/authors" className={navLinkClass}>
+              <Users className="h-3.5 w-3.5" />
+              Authors
             </NavLink>
           </nav>
 
@@ -95,6 +100,10 @@ function Header() {
             <NavLink to="/timetable" className={navLinkClass}>
               <CalendarDays className="h-4 w-4" />
               Timetable
+            </NavLink>
+            <NavLink to="/authors" className={navLinkClass}>
+              <Users className="h-4 w-4" />
+              Authors
             </NavLink>
           </nav>
         )}
@@ -162,7 +171,8 @@ export default function App() {
               <Route path="/list" element={<ListPage />} />
               <Route path="/list/:date" element={<ListPage />} />
               <Route path="/search" element={<SearchPage />} />
-              <Route path="*" element={<Navigate to="/timetable" replace />} />
+              <Route path="/authors" element={<AuthorsPage />} />
+              <Route path="*" element={<Navigate to="/list" replace />} />
             </Routes>
           )}
         </Layout>

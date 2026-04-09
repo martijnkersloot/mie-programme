@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { useSearchParams, useNavigate } from 'react-router-dom'
+import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import { useProgramme } from '@/context'
 import { formatDateShort } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select'
 import PresentationRow from '@/components/PresentationRow'
 import type { PresentationType, Session } from '@/types'
-import { Search } from 'lucide-react'
+import { ExternalLink, Search } from 'lucide-react'
 
 type TypeFilter = PresentationType | 'all'
 type DayFilter = string | 'all'
@@ -72,7 +72,7 @@ export default function SearchPage() {
     <div className="max-w-3xl">
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+      <div className="sticky top-14 z-10 bg-background/95 backdrop-blur-sm -mx-4 px-4 py-4 border-b mb-6 flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
@@ -139,11 +139,21 @@ export default function SearchPage() {
                     </p>
                     <p className="text-sm font-semibold mt-0.5">{session.name}</p>
                   </div>
-                  <Badge variant="outline" className="text-xs shrink-0">
-                    {data?.rooms.find((r) => r.id === session.room_id)?.nickname ||
-                      data?.rooms.find((r) => r.id === session.room_id)?.label ||
-                      session.room_id}
-                  </Badge>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Badge variant="outline" className="text-xs">
+                      {data?.rooms.find((r) => r.id === session.room_id)?.nickname ||
+                        data?.rooms.find((r) => r.id === session.room_id)?.label ||
+                        session.room_id}
+                    </Badge>
+                    <Link
+                      to={`/list/${date}?session=${encodeURIComponent(session.session_id)}`}
+                      className="text-xs text-muted-foreground hover:text-primary flex items-center gap-0.5 transition-colors"
+                      title="View in schedule"
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                      <span className="hidden sm:inline">Schedule</span>
+                    </Link>
+                  </div>
                 </div>
                 {/* Matching presentations */}
                 <div className="px-4 py-1">
