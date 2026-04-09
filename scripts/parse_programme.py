@@ -229,9 +229,20 @@ def _process_table(table: list, days_map: dict, room_map: dict, state: dict) -> 
             if offset not in matched_sessions and name:
                 active = state["active_sessions"].get(offset)
                 if active and re.match(r"Session De\d+-\d+$", active.get("session_id", "")):
-                    if end:
-                        active["end"] = end  # extend session end to cover second time-block
-                    continue  # second block of a paired demo — not a new event
+                    # Split paired demos: create a second session for the second block
+                    # so each demo has its own name, time range and presentations.
+                    second = {
+                        "type":          "session",
+                        "session_id":    active["session_id"],
+                        "name":          name,
+                        "room_id":       active["room_id"],
+                        "start":         start,
+                        "end":           end,
+                        "presentations": [],
+                    }
+                    day["events"].append(second)
+                    state["active_sessions"][offset] = second  # subsequent rows → second block
+                    continue
                 room_id = _room_id_for_col(offset, room_map)
                 _add_special(day, name, start, end, room_id)
 
