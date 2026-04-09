@@ -111,7 +111,12 @@ export default function PresentersPage() {
             <div key={name} className="rounded-lg border bg-card overflow-hidden">
               {/* Presenter header */}
               <div className="px-4 py-2.5 border-b bg-muted/30">
-                <p className="text-sm font-semibold">{name}</p>
+                <Link
+                  to={`/presenters/${encodeURIComponent(name)}`}
+                  className="text-sm font-semibold hover:text-primary transition-colors"
+                >
+                  {name}
+                </Link>
               </div>
 
               {/* Sessions */}

@@ -6,6 +6,7 @@ import TimetablePage from './pages/TimetablePage'
 import ListPage from './pages/ListPage'
 import SearchPage from './pages/SearchPage'
 import PresentersPage from './pages/PresentersPage'
+import PresenterPage from './pages/PresenterPage'
 import { Skeleton } from './components/ui/skeleton'
 import { cn } from './lib/utils'
 import { CalendarDays, List, Menu, Search, Users, X } from 'lucide-react'
@@ -172,6 +173,7 @@ export default function App() {
               <Route path="/list/:date" element={<ListPage />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/presenters" element={<PresentersPage />} />
+              <Route path="/presenters/:name" element={<PresenterPage />} />
               <Route path="*" element={<Navigate to="/list" replace />} />
             </Routes>
           )}
