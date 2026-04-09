@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react'
-import { useSearchParams, useNavigate, Link } from 'react-router-dom'
+import { useMemo } from 'react'
+import { useSearchParams, Link } from 'react-router-dom'
 import { useProgramme } from '@/context'
 import { formatDateShort } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
@@ -24,18 +24,24 @@ interface SearchResult {
   presentationIndices: number[]
 }
 
+const TYPES: PresentationType[] = ['Full paper', 'Short communication', 'Workshop', 'Panel', 'Demo']
+
 export default function SearchPage() {
   const { data } = useProgramme()
-  const [searchParams] = useSearchParams()
-  const navigate = useNavigate()
-  const [query, setQuery] = useState(() => searchParams.get('q') ?? '')
+  const [searchParams, setSearchParams] = useSearchParams()
 
-  const handleQueryChange = (value: string) => {
-    setQuery(value)
-    navigate(`/search?q=${encodeURIComponent(value)}`, { replace: true })
+  const query     = searchParams.get('q')    ?? ''
+  const typeFilter = (searchParams.get('type') ?? 'all') as TypeFilter
+  const dayFilter  = (searchParams.get('day')  ?? 'all') as DayFilter
+
+  const setParam = (key: string, value: string, defaultVal: string) => {
+    setSearchParams((p) => {
+      const next = new URLSearchParams(p)
+      if (value === defaultVal) next.delete(key)
+      else next.set(key, value)
+      return next
+    }, { replace: true })
   }
-  const [typeFilter, setTypeFilter] = useState<TypeFilter>('all')
-  const [dayFilter, setDayFilter] = useState<DayFilter>('all')
 
   const results = useMemo<SearchResult[]>(() => {
     if (!data || !query.trim()) return []
@@ -66,8 +72,6 @@ export default function SearchPage() {
   const totalHits = results.reduce((acc, r) => acc + r.presentationIndices.length, 0)
   const hasQuery = query.trim().length > 0
 
-  const TYPES: PresentationType[] = ['Full paper', 'Short communication', 'Workshop', 'Panel', 'Demo']
-
   return (
     <div className="max-w-3xl">
 
@@ -79,11 +83,11 @@ export default function SearchPage() {
             autoFocus
             placeholder="Search by title or presenter…"
             value={query}
-            onChange={(e) => handleQueryChange(e.target.value)}
+            onChange={(e) => setParam('q', e.target.value, '')}
             className="pl-8"
           />
         </div>
-        <Select value={typeFilter} onValueChange={(v) => setTypeFilter(v as TypeFilter)}>
+        <Select value={typeFilter} onValueChange={(v) => setParam('type', v, 'all')}>
           <SelectTrigger className="sm:w-52">
             <SelectValue placeholder="All types" />
           </SelectTrigger>
@@ -95,7 +99,7 @@ export default function SearchPage() {
           </SelectContent>
         </Select>
         {data && (
-          <Select value={dayFilter} onValueChange={(v) => setDayFilter(v as DayFilter)}>
+          <Select value={dayFilter} onValueChange={(v) => setParam('day', v, 'all')}>
             <SelectTrigger className="sm:w-44">
               <SelectValue placeholder="All days" />
             </SelectTrigger>

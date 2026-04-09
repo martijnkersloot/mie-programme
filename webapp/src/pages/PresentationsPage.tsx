@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { useMemo } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useProgramme } from '@/context'
 import { formatDateShort } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
@@ -45,10 +45,38 @@ interface FlatPresentation {
 
 export default function PresentationsPage() {
   const { data } = useProgramme()
+  const [searchParams, setSearchParams] = useSearchParams()
 
-  const [typeFilter, setTypeFilter] = useState<TypeFilter>('all')
-  const [selectedPresenters, setSelectedPresenters] = useState<string[]>([])
-  const [selectedSessions, setSelectedSessions] = useState<string[]>([])
+  const typeFilter       = (searchParams.get('type') ?? 'all') as TypeFilter
+  const selectedPresenters = searchParams.get('presenters')?.split(',').filter(Boolean) ?? []
+  const selectedSessions   = searchParams.get('sessions')?.split(',').filter(Boolean) ?? []
+
+  const setTypeFilter = (value: TypeFilter) => {
+    setSearchParams((p) => {
+      const next = new URLSearchParams(p)
+      if (value === 'all') next.delete('type')
+      else next.set('type', value)
+      return next
+    }, { replace: true })
+  }
+
+  const setSelectedPresenters = (value: string[]) => {
+    setSearchParams((p) => {
+      const next = new URLSearchParams(p)
+      if (value.length === 0) next.delete('presenters')
+      else next.set('presenters', value.join(','))
+      return next
+    }, { replace: true })
+  }
+
+  const setSelectedSessions = (value: string[]) => {
+    setSearchParams((p) => {
+      const next = new URLSearchParams(p)
+      if (value.length === 0) next.delete('sessions')
+      else next.set('sessions', value.join(','))
+      return next
+    }, { replace: true })
+  }
 
   const roomLabelMap = useMemo(
     () => new Map((data?.rooms ?? []).map((r) => [r.id, r.nickname || r.label])),
