@@ -156,7 +156,7 @@ export default function App() {
           )}
           {!loading && !error && data && (
             <Routes>
-              <Route path="/" element={<Navigate to="/timetable" replace />} />
+              <Route path="/" element={<Navigate to="/list" replace />} />
               <Route path="/timetable" element={<TimetablePage />} />
               <Route path="/timetable/:date" element={<TimetablePage />} />
               <Route path="/list" element={<ListPage />} />
