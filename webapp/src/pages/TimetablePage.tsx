@@ -96,14 +96,6 @@ export default function TimetablePage() {
     )
   }, [data])
 
-  const { minTime, maxTime } = useMemo(() => {
-    if (!data) return { minTime: new Date(0, 0, 0, 8, 0), maxTime: new Date(0, 0, 0, 20, 0) }
-    const allEvts = data.days.flatMap((d) => d.events).filter((e) => e.start && e.end)
-    const minH = Math.max(0, Math.min(...allEvts.map((e) => parseInt(e.start))) - 1)
-    const maxH = Math.min(24, Math.max(...allEvts.map((e) => parseInt(e.end))) + 1)
-    return { minTime: new Date(0, 0, 0, minH, 0), maxTime: new Date(0, 0, 0, maxH, 0) }
-  }, [data])
-
   const conferenceDates = useMemo(
     () => data?.days.map((d) => new Date(d.date + 'T12:00:00')) ?? [],
     [data]
@@ -121,6 +113,16 @@ export default function TimetablePage() {
     () => conferenceDates.findIndex((d) => d.toDateString() === activeDateObj.toDateString()),
     [conferenceDates, activeDateObj]
   )
+
+  const { minTime, maxTime } = useMemo(() => {
+    const dayEvts = data?.days
+      .find((d) => new Date(d.date + 'T12:00:00').toDateString() === activeDateObj.toDateString())
+      ?.events.filter((e) => e.start && e.end) ?? []
+    if (dayEvts.length === 0) return { minTime: new Date(0, 0, 0, 8, 0), maxTime: new Date(0, 0, 0, 20, 0) }
+    const minH = Math.max(0, Math.min(...dayEvts.map((e) => parseInt(e.start))) - 1)
+    const maxH = Math.min(24, Math.max(...dayEvts.map((e) => parseInt(e.end))) + 1)
+    return { minTime: new Date(0, 0, 0, minH, 0), maxTime: new Date(0, 0, 0, maxH, 0) }
+  }, [data, activeDateObj])
 
   const goToDay = (date: Date) => navigate(`/timetable/${date.toISOString().slice(0, 10)}`)
 
