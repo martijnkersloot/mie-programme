@@ -45,7 +45,7 @@ function buildPresenterMap(
   return map
 }
 
-export default function AuthorsPage() {
+export default function PresentersPage() {
   const { data } = useProgramme()
   const [filter, setFilter] = useState('')
 
