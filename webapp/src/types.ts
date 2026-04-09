@@ -43,9 +43,16 @@ export interface Day {
   events: Event[]
 }
 
+export interface Meta {
+  imported_at: string
+  source_filename: string
+  source_file_modified: string
+}
+
 export interface Programme {
   conference: string
   title: string
   rooms: Room[]
   days: Day[]
+  meta?: Meta
 }
