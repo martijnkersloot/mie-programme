@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { useProgramme } from '@/context'
+import { useFavorites } from '@/hooks/useFavorites'
 import { formatDate } from '@/lib/utils'
 import PresentationRow from '@/components/PresentationRow'
 import { Badge } from '@/components/ui/badge'
@@ -106,6 +107,8 @@ function SessionPanel({
   roomLabel: string
   onClose: () => void
 }) {
+  const { isFavorite, toggleFavorite } = useFavorites()
+
   return createPortal(
     <>
       <div className="fixed inset-0 z-[200] bg-black/30" onClick={onClose} />
@@ -130,7 +133,12 @@ function SessionPanel({
             {session.presentations.length} presentation{session.presentations.length !== 1 ? 's' : ''}
           </p>
           {session.presentations.map((p) => (
-            <PresentationRow key={p.id} presentation={p} />
+            <PresentationRow
+              key={p.id}
+              presentation={p}
+              isFavorite={isFavorite(p.id)}
+              onToggleFavorite={toggleFavorite}
+            />
           ))}
         </div>
       </div>

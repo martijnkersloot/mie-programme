@@ -7,9 +7,11 @@ import SearchPage from './pages/SearchPage'
 import PresentersPage from './pages/PresentersPage'
 import PresenterPage from './pages/PresenterPage'
 import PresentationsPage from './pages/PresentationsPage'
+import FavoritesPage from './pages/FavoritesPage'
 import { Skeleton } from './components/ui/skeleton'
 import { cn } from './lib/utils'
-import { BookOpen, List, Menu, Search, Users, X } from 'lucide-react'
+import { BookOpen, List, Menu, Search, Star, Users, X } from 'lucide-react'
+import { useFavorites } from './hooks/useFavorites'
 
 const PROGRAMME_URL =
   'https://raw.githubusercontent.com/martijnkersloot/mie-programme/main/data/programme.json'
@@ -20,6 +22,7 @@ function Header() {
   const navigate = useNavigate()
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const { favorites } = useFavorites()
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -52,6 +55,15 @@ function Header() {
             }>
               <List className="h-3.5 w-3.5" />
               List
+            </NavLink>
+            <NavLink to="/favorites" className={navLinkClass}>
+              <Star className="h-3.5 w-3.5" />
+              Favorites
+              {favorites.size > 0 && (
+                <span className="ml-0.5 rounded-full bg-amber-500 text-white text-[10px] font-bold leading-none px-1.5 py-0.5">
+                  {favorites.size}
+                </span>
+              )}
             </NavLink>
             <NavLink to="/presenters" className={navLinkClass}>
               <Users className="h-3.5 w-3.5" />
@@ -97,6 +109,15 @@ function Header() {
             }>
               <List className="h-4 w-4" />
               List
+            </NavLink>
+            <NavLink to="/favorites" className={navLinkClass}>
+              <Star className="h-4 w-4" />
+              Favorites
+              {favorites.size > 0 && (
+                <span className="ml-0.5 rounded-full bg-amber-500 text-white text-[10px] font-bold leading-none px-1.5 py-0.5">
+                  {favorites.size}
+                </span>
+              )}
             </NavLink>
             <NavLink to="/presenters" className={navLinkClass}>
               <Users className="h-4 w-4" />
@@ -196,6 +217,7 @@ export default function App() {
               <Route path="/" element={<Navigate to="/list" replace />} />
               <Route path="/list" element={<ListPage />} />
               <Route path="/list/:date" element={<ListPage />} />
+              <Route path="/favorites" element={<FavoritesPage />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/presenters" element={<PresentersPage />} />
               <Route path="/presenters/:name" element={<PresenterPage />} />

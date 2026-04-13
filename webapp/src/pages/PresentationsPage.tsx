@@ -14,7 +14,9 @@ import {
 import { MultiSelect } from '@/components/ui/multi-select'
 import PresenterLink from '@/components/PresenterLink'
 import type { PresentationType, Session } from '@/types'
-import { ExternalLink } from 'lucide-react'
+import { ExternalLink, Star } from 'lucide-react'
+import { useFavorites } from '@/hooks/useFavorites'
+import { cn } from '@/lib/utils'
 
 type TypeFilter = PresentationType | 'all'
 
@@ -148,6 +150,8 @@ export default function PresentationsPage() {
     })
   }, [allPresentations, typeFilter, selectedPresenters, selectedSessions])
 
+  const { isFavorite, toggleFavorite } = useFavorites()
+
   if (!data) return null
 
   return (
@@ -222,13 +226,27 @@ export default function PresentationsPage() {
                     className="text-xs text-muted-foreground mt-0.5 block"
                   />
                 </div>
-                <Link
-                  to={`/list/${p.date}?session=${encodeURIComponent(p.sessionId)}`}
-                  className="shrink-0 text-muted-foreground hover:text-primary transition-colors mt-1"
-                  title="View in schedule"
-                >
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </Link>
+                <div className="flex items-center gap-1 shrink-0 mt-1">
+                  <button
+                    onClick={() => toggleFavorite(p.id)}
+                    className={cn(
+                      'p-1 rounded-md transition-colors',
+                      isFavorite(p.id)
+                        ? 'text-amber-500 hover:text-amber-600'
+                        : 'text-muted-foreground hover:text-amber-500'
+                    )}
+                    aria-label={isFavorite(p.id) ? 'Remove from favorites' : 'Add to favorites'}
+                  >
+                    <Star className={cn('h-3.5 w-3.5', isFavorite(p.id) && 'fill-current')} />
+                  </button>
+                  <Link
+                    to={`/list/${p.date}?session=${encodeURIComponent(p.sessionId)}`}
+                    className="p-1 text-muted-foreground hover:text-primary transition-colors"
+                    title="View in schedule"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
               </div>
               <p className="text-xs text-muted-foreground">
                 {p.sessionId} · {formatDateShort(p.date)} · {p.start}–{p.end} · {roomLabel}
