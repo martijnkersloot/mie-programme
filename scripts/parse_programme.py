@@ -355,11 +355,10 @@ def download_from_gdrive(gdrive_id: str, dest: str) -> str:
         import gdown
     except ImportError:
         sys.exit("gdown is required for Google Drive downloads:  pip install gdown")
-    url = f"https://drive.google.com/file/d/{gdrive_id}/view"
     print(f"Downloading PDF from Google Drive ({gdrive_id}) …")
     # Download into a temp dir so gdown preserves the original filename
     tmp_dir = tempfile.mkdtemp()
-    result = gdown.download(url=url, output=tmp_dir + "/", fuzzy=True, quiet=False)
+    result = gdown.download(id=gdrive_id, output=tmp_dir + "/", quiet=False)
     if not result:
         sys.exit("gdown failed to download the file")
     original_name = Path(result).name
