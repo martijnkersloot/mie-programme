@@ -245,10 +245,10 @@
               "title": "Integration of Patient-Reported Outcomes into the OMOP Common Data Model"
             },
             {
-              "id": 657,
+              "id": 725,
               "type": "Full paper",
-              "presenter": "Stefano Antola, Selene Gallone",
-              "title": "A unified database for a set of clinical studies on the treatment of bacterial and fungal infections within the MULTI-SITA project"
+              "presenter": "David Raju Manne",
+              "title": "Digital Twins in Healthcare: Enabling Predictive, Personalized, and Precision-Driven Transformation"
             }
           ]
         },
@@ -462,7 +462,7 @@
             {
               "id": 866,
               "type": "Panel",
-              "presenter": "Marion Ball",
+              "presenter": "Ursula Hübner, Marion Ball",
               "title": "Bridging Artificial and Human Intelligence: the Ingredients of Augmentation"
             }
           ]
@@ -674,6 +674,12 @@
               "title": "Errors That Matter: Negative Experiences of Incorrect and Incomplete Health Records Among Youth in Mental Healthcare"
             },
             {
+              "id": 607,
+              "type": "Full paper",
+              "presenter": "Anna Kharko",
+              "title": "Patient Rights to Correct Errors in the Electronic Health Record: Comparison of Legislation in Sweden, UK, and Germany"
+            },
+            {
               "id": 49,
               "type": "Full paper",
               "presenter": "Marcel Weber",
@@ -690,12 +696,6 @@
               "type": "Full paper",
               "presenter": "Morten Bonde Klausen",
               "title": "Enhancing Cross-Sector Collaboration in Diabetes Care through a Shared-View Platform: Clinical Experiences with SAMBLIK-diabetes"
-            },
-            {
-              "id": 678,
-              "type": "Full paper",
-              "presenter": "Ursula Hübner",
-              "title": "The Association of Software Sophistication with Quality of Care Outcome - The Case of Hospital Acquired Pressure Ulcers"
             },
             {
               "id": 741,
@@ -748,12 +748,6 @@
               "type": "Full paper",
               "presenter": "Suwairin Srichai",
               "title": "Social Isolation, Social Capitals, and Quality of Life among the Elderly during the COVID-19 Pandemic in the Northeast of Thailand"
-            },
-            {
-              "id": 470,
-              "type": "Full paper",
-              "presenter": "Mathilde Bories",
-              "title": "Reconstructing Longitudinal Medication Trajectories from Integrated National Claims and Clinical Data Warehouse Data: An Application in Oncology"
             },
             {
               "id": 819,
@@ -822,7 +816,7 @@
             {
               "id": 681,
               "type": "Full paper",
-              "presenter": "Nicolas Frey",
+              "presenter": "Nicolas Frey, Falk Meyer-Eschenbach",
               "title": "Interpretable Feature Extraction from Clinical Notes for Sepsis Prediction: Comparing Rule-Based, LLM, and Hybrid Approaches"
             },
             {
@@ -1147,6 +1141,12 @@
               "type": "Short communication",
               "presenter": "Lucas Plagwitz",
               "title": "Generalization of ML Models Between ECG and VCG Representation"
+            },
+            {
+              "id": 598,
+              "type": "Short communication",
+              "presenter": "Hannes Schlieter",
+              "title": "Towards Blended Obesity Care: An LLM-based Nutrition Coach on FHIR"
             }
           ]
         },
@@ -1270,6 +1270,22 @@
         },
         {
           "type": "session",
+          "session_id": "Session De8",
+          "name": "Demo 8",
+          "room_id": "main-hall",
+          "start": "13:00",
+          "end": "13:30",
+          "presentations": [
+            {
+              "id": 887,
+              "type": "Demo",
+              "presenter": "Adnan Kulenovic",
+              "title": "PM-TOM : Polypharmacy Optimization Using Structured Drug Databases and LLM Tools"
+            }
+          ]
+        },
+        {
+          "type": "session",
           "session_id": "Session De1",
           "name": "Demo 1",
           "room_id": "room-1",
@@ -1333,11 +1349,43 @@
           ]
         },
         {
+          "type": "session",
+          "session_id": "Session Pa24",
+          "name": "Panel 24",
+          "room_id": "room-5",
+          "start": "13:00",
+          "end": "14:00",
+          "presentations": [
+            {
+              "id": 972,
+              "type": "Panel",
+              "presenter": "Adrien UGON",
+              "title": "Digital Health in the Era of Generative Artificial Intelligence :Year in Review through the Lense of the IMIA Yearbook"
+            }
+          ]
+        },
+        {
           "type": "special",
           "name": "Lunch + Poster 1",
           "room_id": "other",
           "start": "13:00",
           "end": "14:00"
+        },
+        {
+          "type": "session",
+          "session_id": "Session De9",
+          "name": "Demo 9",
+          "room_id": "main-hall",
+          "start": "13:30",
+          "end": "14:00",
+          "presentations": [
+            {
+              "id": 935,
+              "type": "Demo",
+              "presenter": "Pragya Pragya",
+              "title": "Development of a software platform for target identification, drug target interaction, and pharmacokinetic properties prediction"
+            }
+          ]
         },
         {
           "type": "session",
@@ -1352,6 +1400,22 @@
               "type": "Demo",
               "presenter": "Morten Haaning Charles",
               "title": "SAMBLIK – A National Cross-Sector Data Platform for Integrated Chronic Care in Denmark"
+            }
+          ]
+        },
+        {
+          "type": "session",
+          "session_id": "Session De7",
+          "name": "Demo 7",
+          "room_id": "room-2",
+          "start": "13:30",
+          "end": "14:00",
+          "presentations": [
+            {
+              "id": 877,
+              "type": "Demo",
+              "presenter": "Rachel Stephens",
+              "title": "Culturally Resonant, AI-driven Health Literacy Outreach for Black Adults in Erie County, New York"
             }
           ]
         },
@@ -1372,52 +1436,18 @@
           ]
         },
         {
-          "type": "session",
-          "session_id": "Session De7",
-          "name": "Demo 7",
-          "room_id": "room-5",
-          "start": "13:30",
-          "end": "14:00",
-          "presentations": [
-            {
-              "id": 877,
-              "type": "Demo",
-              "presenter": "Rachel Stephens",
-              "title": "Culturally Resonant, AI-driven Health Literacy Outreach for Black Adults in Erie County, New York"
-            }
-          ]
-        },
-        {
-          "type": "session",
-          "session_id": "Session De8",
-          "name": "Demo 8",
+          "type": "special",
+          "name": "EFMI WG EDU (Open Event)",
           "room_id": "room-6",
-          "start": "13:30",
-          "end": "14:00",
-          "presentations": [
-            {
-              "id": 887,
-              "type": "Demo",
-              "presenter": "Adnan Kulenovic",
-              "title": "PM-TOM : Polypharmacy Optimization Using Structured Drug Databases and LLM Tools"
-            }
-          ]
+          "start": "13:00",
+          "end": "14:00"
         },
         {
-          "type": "session",
-          "session_id": "Session De9",
-          "name": "Demo 9",
+          "type": "special",
+          "name": "IMIA TAQD WG (Private Event)",
           "room_id": "room-7",
-          "start": "13:30",
-          "end": "14:00",
-          "presentations": [
-            {
-              "id": 935,
-              "type": "Demo",
-              "presenter": "Pragya Pragya",
-              "title": "Development of a software platform for target identification, drug target interaction, and pharmacokinetic properties prediction"
-            }
-          ]
+          "start": "13:00",
+          "end": "14:00"
         },
         {
           "type": "special",
@@ -1637,6 +1667,12 @@
               "type": "Full paper",
               "presenter": "Carolin Heizmann",
               "title": "A Human-Centered, Multi-Stage Clinical Decision Pathway for an AI- Based CDSS for Delirium Prevention"
+            },
+            {
+              "id": 470,
+              "type": "Full paper",
+              "presenter": "Mathilde Bories",
+              "title": "Reconstructing Longitudinal Medication Trajectories from Integrated National Claims and Clinical Data Warehouse Data: An Application in Oncology"
             },
             {
               "id": 816,
@@ -2119,7 +2155,7 @@
         },
         {
           "type": "special",
-          "name": "Talk 1: Lacramioara Stoicu-Tivadar",
+          "name": "Talk 1: Lacramioara Stoicu-Tivadar \"AI reinforcing the Personal Gate – human to human connection\"",
           "room_id": "main-hall",
           "start": "18:30",
           "end": "19:00"
@@ -2154,17 +2190,17 @@
         },
         {
           "type": "session",
-          "session_id": "Session Pa7",
-          "name": "Panel 7",
+          "session_id": "Session Pa25",
+          "name": "Panel 25",
           "room_id": "room-1",
           "start": "18:30",
           "end": "19:30",
           "presentations": [
             {
-              "id": 863,
+              "id": 925,
               "type": "Panel",
-              "presenter": "Yu-Chuan (Jack) Li",
-              "title": "From Evidence to Global Impact: How To Publish in BMJ Health and Care Informatics"
+              "presenter": "A. Rosemary Tate",
+              "title": "Data quality: do you share our frustrations?"
             }
           ]
         },
@@ -2251,7 +2287,7 @@
         {
           "type": "special",
           "name": "Gala Dinner",
-          "room_id": "other",
+          "room_id": "room-1",
           "start": "20:30",
           "end": "23:59"
         }
@@ -2326,17 +2362,17 @@
         },
         {
           "type": "session",
-          "session_id": "Session Pa25",
-          "name": "Panel 25",
+          "session_id": "Session Pa7",
+          "name": "Panel 7",
           "room_id": "room-4",
           "start": "8:30",
           "end": "9:30",
           "presentations": [
             {
-              "id": 925,
+              "id": 863,
               "type": "Panel",
-              "presenter": "A. Rosemary Tate",
-              "title": "Data quality: do you share our frustrations?"
+              "presenter": "Yu-Chuan (Jack) Li",
+              "title": "From Evidence to Global Impact: How To Publish in BMJ Health and Care Informatics"
             }
           ]
         },
@@ -2465,12 +2501,6 @@
               "title": "Evaluation of Avatarization for Privacy-Preserving Synthetic Health Data Generation: A Case Study in Cancer Prediction"
             },
             {
-              "id": 439,
-              "type": "Short communication",
-              "presenter": "Cleiston Rodrigues Da Silva",
-              "title": "A GDPR-Aligned Infrastructure Enabling Secure Multicenter Research Studies"
-            },
-            {
               "id": 519,
               "type": "Short communication",
               "presenter": "Elias Grünewald",
@@ -2511,10 +2541,10 @@
               "title": "Identification of Reliable Biomarkers for ALS through Machine Learning Approach"
             },
             {
-              "id": 607,
+              "id": 678,
               "type": "Full paper",
-              "presenter": "Anna Kharko",
-              "title": "Patient Rights to Correct Errors in the Electronic Health Record: Comparison of Legislation in Sweden, UK, and Germany"
+              "presenter": "Ursula Hübner",
+              "title": "The Association of Software Sophistication with Quality of Care Outcome - The Case of Hospital Acquired Pressure Ulcers"
             },
             {
               "id": 651,
@@ -2728,12 +2758,6 @@
           "end": "13:00",
           "presentations": [
             {
-              "id": 598,
-              "type": "Short communication",
-              "presenter": "Hannes Schlieter",
-              "title": "Towards Blended Obesity Care: An LLM-based Nutrition Coach on FHIR"
-            },
-            {
               "id": 241,
               "type": "Full paper",
               "presenter": "Louisa Schwarz",
@@ -2774,6 +2798,12 @@
               "type": "Full paper",
               "presenter": "Stefano Nera",
               "title": "Towards the Definition of a Prognostic Model for Mantle Cell Lymphoma"
+            },
+            {
+              "id": 710,
+              "type": "Full paper",
+              "presenter": "Kimmy Raven",
+              "title": "Provider-related determinants influencing drug-drug interaction alert handling in the electronic health record"
             }
           ]
         },
@@ -3079,7 +3109,7 @@
           "type": "session",
           "session_id": "Session De10",
           "name": "Demo 10",
-          "room_id": "room-1",
+          "room_id": "main-hall",
           "start": "13:00",
           "end": "13:30",
           "presentations": [
@@ -3095,7 +3125,7 @@
           "type": "session",
           "session_id": "Session De11",
           "name": "Demo 11",
-          "room_id": "room-2",
+          "room_id": "room-1",
           "start": "13:00",
           "end": "13:30",
           "presentations": [
@@ -3111,7 +3141,7 @@
           "type": "session",
           "session_id": "Session De12",
           "name": "Demo 12",
-          "room_id": "room-3",
+          "room_id": "room-2",
           "start": "13:00",
           "end": "13:30",
           "presentations": [
@@ -3134,7 +3164,7 @@
           "type": "session",
           "session_id": "Session De13",
           "name": "Demo 13",
-          "room_id": "room-4",
+          "room_id": "room-3",
           "start": "13:30",
           "end": "14:00",
           "presentations": [
@@ -3150,7 +3180,7 @@
           "type": "session",
           "session_id": "Session De14",
           "name": "Demo 14",
-          "room_id": "room-5",
+          "room_id": "room-4",
           "start": "13:30",
           "end": "14:00",
           "presentations": [
@@ -3166,7 +3196,7 @@
           "type": "session",
           "session_id": "Session De15",
           "name": "Demo 15",
-          "room_id": "room-6",
+          "room_id": "room-5",
           "start": "13:30",
           "end": "14:00",
           "presentations": [
@@ -3177,6 +3207,20 @@
               "title": "An AI-Powered Literature Chat Tool for EGPA Research: Integrating NLP, Semantic Search, and Protein-Specific Knowledge Extraction"
             }
           ]
+        },
+        {
+          "type": "special",
+          "name": "Medical Registries WG (Private Event)",
+          "room_id": "room-6",
+          "start": "13:00",
+          "end": "14:00"
+        },
+        {
+          "type": "special",
+          "name": "SPC Meeting (Private Event)",
+          "room_id": "room-7",
+          "start": "13:00",
+          "end": "14:00"
         },
         {
           "type": "special",
@@ -3753,12 +3797,6 @@
               "type": "Workshop",
               "presenter": "Thomas Engelsma",
               "title": "Update of the HOFMI working group: current projects and future collaborations"
-            },
-            {
-              "id": 972,
-              "type": "Panel",
-              "presenter": "Adrien UGON",
-              "title": "Digital Health in the Era of Generative Artificial Intelligence :Year in Review through the Lense of the IMIA Yearbook"
             }
           ]
         },
@@ -3778,7 +3816,7 @@
         },
         {
           "type": "special",
-          "name": "Talk 2: Bernd Blobel",
+          "name": "Talk 2: Bernd Blobel \"Managing Knowledge-Based Integration and Interoperability in Intelligent and Ethical Transformed Health and Social Care Ecosystems\"",
           "room_id": "main-hall",
           "start": "18:00",
           "end": "18:30"
@@ -3804,10 +3842,16 @@
               "title": "Evaluation of Healthcare Data De-identification with WiseSpace tool"
             },
             {
-              "id": 725,
+              "id": 657,
               "type": "Full paper",
-              "presenter": "David Raju Manne",
-              "title": "Digital Twins in Healthcare: Enabling Predictive, Personalized, and Precision-Driven Transformation"
+              "presenter": "Stefano Antola, Selene Gallone",
+              "title": "A unified database for a set of clinical studies on the treatment of bacterial and fungal infections within the MULTI-SITA project"
+            },
+            {
+              "id": 408,
+              "type": "Full paper",
+              "presenter": "Raja Omman Zafar",
+              "title": "Bridging Data and Behavior in Homecare: Personalized Routine Modelling and Anomaly Interpretation"
             },
             {
               "id": 740,
@@ -3911,6 +3955,13 @@
         },
         {
           "type": "special",
+          "name": "SHAIPED Project Meeting (Open Event)",
+          "room_id": "room-6",
+          "start": "18:30",
+          "end": "19:30"
+        },
+        {
+          "type": "special",
           "name": "Young EFMI Event",
           "room_id": "other",
           "start": "20:30",
@@ -3964,12 +4015,6 @@
               "type": "Full paper",
               "presenter": "Mário Macedo",
               "title": "GlobalMedQA: A Standardized Multilingual Dataset for Assessing Medical Knowledge in LLMs"
-            },
-            {
-              "id": 710,
-              "type": "Full paper",
-              "presenter": "Kimmy Raven",
-              "title": "Provider-related determinants influencing drug-drug interaction alert handling in the electronic health record"
             },
             {
               "id": 673,
@@ -4038,13 +4083,13 @@
             {
               "id": 664,
               "type": "Short communication",
-              "presenter": "Louis Agha-Mir-Salim",
+              "presenter": "Nicolas Frey",
               "title": "Physicians’ Perspectives on Predictive Uncertainty in Machine Learning Models"
             },
             {
               "id": 685,
               "type": "Short communication",
-              "presenter": "Darian Liehr",
+              "presenter": "Volker Ahlers",
               "title": "Visualization of Clinical Case Similarities in Pediatric Cardiology Using Structured Case Conference Reports"
             }
           ]
@@ -4285,23 +4330,23 @@
         },
         {
           "type": "session",
-          "session_id": "Session De16-17",
-          "name": "Demo 16",
+          "session_id": "Session Pa27",
+          "name": "Panel 27",
           "room_id": "room-1",
           "start": "10:00",
-          "end": "10:30",
+          "end": "11:00",
           "presentations": [
             {
-              "id": 929,
-              "type": "Demo",
-              "presenter": "Mattias Seth",
-              "title": "Virtuality – A Virtual Care Process Simulation Ecosystem for Design and Evaluation of Digital Innovations"
+              "id": 900,
+              "type": "Panel",
+              "presenter": "Eugenia Rinaldi, Catherine Chronaki, Luc Nicolas",
+              "title": "Interoperability in Action: EHDS and the Future of Public Health Dashboards"
             }
           ]
         },
         {
           "type": "session",
-          "session_id": "Session De18-19",
+          "session_id": "Session De18",
           "name": "Demo 18",
           "room_id": "room-2",
           "start": "10:00",
@@ -4317,7 +4362,7 @@
         },
         {
           "type": "session",
-          "session_id": "Session De20-21",
+          "session_id": "Session De20",
           "name": "Demo 20",
           "room_id": "room-3",
           "start": "10:00",
@@ -4333,7 +4378,7 @@
         },
         {
           "type": "session",
-          "session_id": "Session De22-23",
+          "session_id": "Session De22",
           "name": "Demo 22",
           "room_id": "room-4",
           "start": "10:00",
@@ -4349,7 +4394,7 @@
         },
         {
           "type": "session",
-          "session_id": "Session De24-25",
+          "session_id": "Session De24",
           "name": "Demo 24",
           "room_id": "room-5",
           "start": "10:00",
@@ -4358,14 +4403,14 @@
             {
               "id": 954,
               "type": "Demo",
-              "presenter": "Samuele Pe",
+              "presenter": "Samuele Pe, Antonino Angi",
               "title": "Contrastive Explanations in Heart Failure: a Demonstration using Multimodal Cardiac Data"
             }
           ]
         },
         {
           "type": "session",
-          "session_id": "Session De26-27",
+          "session_id": "Session De26",
           "name": "Demo 26",
           "room_id": "room-6",
           "start": "10:00",
@@ -4381,7 +4426,7 @@
         },
         {
           "type": "session",
-          "session_id": "Session De28-29",
+          "session_id": "Session De28",
           "name": "Demo 28",
           "room_id": "room-7",
           "start": "10:00",
@@ -4397,7 +4442,7 @@
         },
         {
           "type": "special",
-          "name": "Talk 3: Lars Lindsköld",
+          "name": "Talk 3: Lars Lindsköld \"Challenges and Opportunities in Medical Informatics\"",
           "room_id": "main-hall",
           "start": "10:00",
           "end": "10:30"
@@ -4432,23 +4477,7 @@
         },
         {
           "type": "session",
-          "session_id": "Session De16-17",
-          "name": "Demo 17",
-          "room_id": "room-1",
-          "start": "10:30",
-          "end": "11:00",
-          "presentations": [
-            {
-              "id": 932,
-              "type": "Demo",
-              "presenter": "Sophie Anne Ines Klopfenstein",
-              "title": "Enabling Evidence-based Decision Support at the Point-of-Care: Presenting a Registry of Clinical Practice Guidelines based on Fast Healthcare Interoperable Resources"
-            }
-          ]
-        },
-        {
-          "type": "session",
-          "session_id": "Session De18-19",
+          "session_id": "Session De19",
           "name": "Demo 19",
           "room_id": "room-2",
           "start": "10:30",
@@ -4464,7 +4493,7 @@
         },
         {
           "type": "session",
-          "session_id": "Session De20-21",
+          "session_id": "Session De21",
           "name": "Demo 21",
           "room_id": "room-3",
           "start": "10:30",
@@ -4480,7 +4509,7 @@
         },
         {
           "type": "session",
-          "session_id": "Session De22-23",
+          "session_id": "Session De23",
           "name": "Demo 23",
           "room_id": "room-4",
           "start": "10:30",
@@ -4496,7 +4525,7 @@
         },
         {
           "type": "session",
-          "session_id": "Session De24-25",
+          "session_id": "Session De25",
           "name": "Demo 25",
           "room_id": "room-5",
           "start": "10:30",
@@ -4512,7 +4541,7 @@
         },
         {
           "type": "session",
-          "session_id": "Session De26-27",
+          "session_id": "Session De27",
           "name": "Demo 27",
           "room_id": "room-6",
           "start": "10:30",
@@ -4528,7 +4557,7 @@
         },
         {
           "type": "session",
-          "session_id": "Session De28-29",
+          "session_id": "Session De29",
           "name": "Demo 29",
           "room_id": "room-7",
           "start": "10:30",
@@ -4882,11 +4911,43 @@
           ]
         },
         {
+          "type": "session",
+          "session_id": "Session De16",
+          "name": "Demo 16",
+          "room_id": "room-1",
+          "start": "13:00",
+          "end": "13:30",
+          "presentations": [
+            {
+              "id": 929,
+              "type": "Demo",
+              "presenter": "Mattias Seth",
+              "title": "Virtuality – A Virtual Care Process Simulation Ecosystem for Design and Evaluation of Digital Innovations"
+            }
+          ]
+        },
+        {
           "type": "special",
           "name": "Lunch",
           "room_id": "other",
           "start": "13:00",
           "end": "14:00"
+        },
+        {
+          "type": "session",
+          "session_id": "Session De17",
+          "name": "Demo 17",
+          "room_id": "room-1",
+          "start": "13:30",
+          "end": "14:00",
+          "presentations": [
+            {
+              "id": 932,
+              "type": "Demo",
+              "presenter": "Sophie Anne Ines Klopfenstein",
+              "title": "Enabling Evidence-based Decision Support at the Point-of-Care: Presenting a Registry of Clinical Practice Guidelines based on Fast Healthcare Interoperable Resources"
+            }
+          ]
         },
         {
           "type": "session",
@@ -5059,6 +5120,12 @@
               "type": "Short communication",
               "presenter": "Evangelia Minga",
               "title": "Building robust foundations for data interoperability in hematological malignancies"
+            },
+            {
+              "id": 439,
+              "type": "Short communication",
+              "presenter": "Cleiston Rodrigues Da Silva",
+              "title": "A GDPR-Aligned Infrastructure Enabling Secure Multicenter Research Studies"
             }
           ]
         },
@@ -5216,9 +5283,9 @@
     }
   ],
   "meta": {
-    "imported_at": "2026-04-21T07:24:01.154653+00:00",
-    "source_filename": "Timing_detailed_MIE2026_V3.pdf",
-    "source_file_modified": "2026-04-07T15:04:24+00:00",
-    "gdrive_id": "1_SAA1ks7xbW7TRGKiLvhSZ_6MYdrsA4P"
+    "imported_at": "2026-04-22T07:03:00.311713+00:00",
+    "source_filename": "Timing_detailed_MIE2026_V4.pdf",
+    "source_file_modified": "2026-04-17T06:15:47+00:00",
+    "gdrive_id": "1FSwkhlxs08LhSGHQcnLujXisPX0wvppG"
   }
 }
