@@ -778,6 +778,12 @@
               "type": "Full paper",
               "presenter": "Somayeh Abedian",
               "title": "Proposed Schema Extensions and ETL Pathways for Integrating Wearable and Patient-Reported PGHD into OMOP-CDM for Secondary Use"
+            },
+            {
+              "id": 797,
+              "type": "Full paper",
+              "presenter": "Edgar Dulce Villarreal",
+              "title": "IoT-Based Biomedical Monitoring System for Preventive Maternal Healthcare and Early Detection of Obstetric Complications"
             }
           ]
         },
@@ -1011,7 +1017,7 @@
             {
               "id": 304,
               "type": "Full paper",
-              "presenter": "Thomas Ganslandt",
+              "presenter": "Philip Overton",
               "title": "Accurate yet privacy-preserving determination of case numbers across German university hospital health data"
             },
             {
@@ -4017,6 +4023,12 @@
               "title": "GlobalMedQA: A Standardized Multilingual Dataset for Assessing Medical Knowledge in LLMs"
             },
             {
+              "id": 532,
+              "type": "Full paper",
+              "presenter": "Johann Frei",
+              "title": "Context-Free Grammar-guided Generation of FHIR Resources Using Large Language Models"
+            },
+            {
               "id": 673,
               "type": "Short communication",
               "presenter": "Semih Sirin",
@@ -4685,6 +4697,12 @@
               "type": "Full paper",
               "presenter": "María González López",
               "title": "PROSODIC: Predictive Intelligence for Secondary Prevention of Youth Suicide"
+            },
+            {
+              "id": 512,
+              "type": "Full paper",
+              "presenter": "Pauline Bataille",
+              "title": "Challenges of ontology-based concept normalization for deep phenotyping in rare skin diseases"
             }
           ]
         },
@@ -5040,12 +5058,6 @@
               "title": "Designing with Humans in the Loop: A Human-Centered Approach to AI-based Healthcare Technologies"
             },
             {
-              "id": 797,
-              "type": "Full paper",
-              "presenter": "Edgar Dulce Villarreal",
-              "title": "IoT-Based Biomedical Monitoring System for Preventive Maternal Healthcare and Early Detection of Obstetric Complications"
-            },
-            {
               "id": 803,
               "type": "Full paper",
               "presenter": "Elin Thygesen",
@@ -5283,9 +5295,9 @@
     }
   ],
   "meta": {
-    "imported_at": "2026-04-26T07:18:12.066338+00:00",
-    "source_filename": "Timing_detailed_MIE2026_V4.pdf",
-    "source_file_modified": "2026-04-17T06:15:47+00:00",
-    "gdrive_id": "1FSwkhlxs08LhSGHQcnLujXisPX0wvppG"
+    "imported_at": "2026-04-26T11:58:05.067531+00:00",
+    "source_filename": "Timing_detailed_MIE2026_V5.pdf",
+    "source_file_modified": "2026-04-22T08:39:57+00:00",
+    "gdrive_id": "1UwIr7qHgYLwAG6ggQEfmvrS0Ali_87QR"
   }
 }
