@@ -374,7 +374,7 @@ def download_from_gdrive(gdrive_id: str, dest: str) -> str:
 # Google Drive file ID — read from environment variable, with a fallback.
 # Set GDRIVE_ID in your shell or .env before running locally.
 # In GitHub Actions it is injected via the workflow env: block.
-GDRIVE_ID = os.environ.get("GDRIVE_ID", "1UwIr7qHgYLwAG6ggQEfmvrS0Ali_87QR")
+GDRIVE_ID = os.environ.get("GDRIVE_ID", "19QpygtOuHtUhN_3sx_WFrSm6CiFOG7rs")
 
 
 def main():
