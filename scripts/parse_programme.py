@@ -446,7 +446,14 @@ def parse_pdf(pdf_path: str) -> dict:
     days_map: dict[str, dict] = {}
 
     with pdfplumber.open(pdf_path) as pdf:
-        all_tables = [t for page in pdf.pages for t in page.extract_tables()]
+        # y_tolerance=2 keeps session-name text and date/time text on separate
+        # lines; the default of 3 merges them (difference is ~2.8 pt) causing
+        # characters from the two streams to interleave when sorted by x.
+        all_tables = [
+            t.extract(y_tolerance=2)
+            for page in pdf.pages
+            for t in page.find_tables()
+        ]
         room_map   = _detect_rooms(all_tables)
 
         # State shared across all table calls so that a day split over multiple
