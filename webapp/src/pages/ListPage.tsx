@@ -7,7 +7,8 @@ import { formatDate } from '@/lib/utils'
 import PresentationRow from '@/components/PresentationRow'
 import { Badge } from '@/components/ui/badge'
 import type { Event, Session, SpecialEvent } from '@/types'
-import { ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { CalendarPlus, ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { buildCalendarUrls } from '@/lib/calendarLinks'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -99,15 +100,18 @@ function ParallelSessionsBlock({
 // ─── slide-in panel (rendered via portal so it covers the sticky header) ────
 
 function SessionPanel({
+  date,
   session,
   roomLabel,
   onClose,
 }: {
+  date: string
   session: Session
   roomLabel: string
   onClose: () => void
 }) {
   const { isFavorite, toggleFavorite } = useFavorites()
+  const { google: googleUrl, outlook: outlookUrl, outlook365: outlook365Url } = buildCalendarUrls(date, session, roomLabel)
 
   return createPortal(
     <>
@@ -120,6 +124,35 @@ function SessionPanel({
             </p>
             <h3 className="text-base font-semibold leading-snug">{session.name}</h3>
             <Badge variant="outline" className="mt-2 text-xs">{roomLabel}</Badge>
+            <div className="flex items-center gap-1.5 mt-2">
+              <CalendarPlus className="h-3 w-3 text-muted-foreground shrink-0" />
+              <a
+                href={googleUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-muted-foreground hover:text-foreground hover:underline"
+              >
+                Google Calendar
+              </a>
+              <span className="text-xs text-muted-foreground">·</span>
+              <a
+                href={outlookUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-muted-foreground hover:text-foreground hover:underline"
+              >
+                Outlook.com
+              </a>
+              <span className="text-xs text-muted-foreground">·</span>
+              <a
+                href={outlook365Url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-muted-foreground hover:text-foreground hover:underline"
+              >
+                Outlook 365
+              </a>
+            </div>
           </div>
           <button
             onClick={onClose}
@@ -254,6 +287,7 @@ export default function ListPage() {
 
       {selectedSession && (
         <SessionPanel
+          date={day.date}
           session={selectedSession}
           roomLabel={roomLabelMap.get(selectedSession.room_id) ?? selectedSession.room_id}
           onClose={handleClosePanel}
