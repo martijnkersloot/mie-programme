@@ -4,7 +4,7 @@ export function buildCalendarUrls(
   date: string,
   session: Session,
   roomLabel: string,
-): { google: string; outlook: string } {
+): { google: string; outlook: string; outlook365: string } {
   const dateCompact = date.replace(/-/g, '')
   const pad = (t: string) => t.padStart(5, '0')
   const toCompact = (t: string) => pad(t).replace(':', '') + '00'
