@@ -8,7 +8,8 @@ import { useProgramme } from '@/context'
 import { formatDate } from '@/lib/utils'
 import PresentationRow from '@/components/PresentationRow'
 import type { Session } from '@/types'
-import { ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { CalendarPlus, ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { buildCalendarUrls } from '@/lib/calendarLinks'
 import { Badge } from '@/components/ui/badge'
 
 const localizer = dateFnsLocalizer({
@@ -213,6 +214,42 @@ export default function TimetablePage() {
                 <Badge variant="outline" className="mt-2 text-xs">
                   {roomLabelMap.get(selectedSession.room_id) ?? selectedSession.room_id}
                 </Badge>
+                {(() => {
+                  const sessionDate = data.days[activeIdx]?.date ?? ''
+                  const roomLabel = roomLabelMap.get(selectedSession.room_id) ?? selectedSession.room_id
+                  const { google: googleUrl, outlook: outlookUrl, outlook365: outlook365Url } = buildCalendarUrls(sessionDate, selectedSession, roomLabel)
+                  return (
+                    <div className="flex items-center gap-1.5 mt-2">
+                      <CalendarPlus className="h-3 w-3 text-muted-foreground shrink-0" />
+                      <a
+                        href={googleUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-muted-foreground hover:text-foreground hover:underline"
+                      >
+                        Google Calendar
+                      </a>
+                      <span className="text-xs text-muted-foreground">·</span>
+                      <a
+                        href={outlookUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-muted-foreground hover:text-foreground hover:underline"
+                      >
+                        Outlook.com
+                      </a>
+                      <span className="text-xs text-muted-foreground">·</span>
+                      <a
+                        href={outlook365Url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-muted-foreground hover:text-foreground hover:underline"
+                      >
+                        Outlook 365
+                      </a>
+                    </div>
+                  )
+                })()}
               </div>
               <button
                 onClick={() => setSelectedSession(null)}
