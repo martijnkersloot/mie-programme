@@ -47,6 +47,115 @@ def _has_datetime(text: str) -> bool:
     return bool(re.search(r"\d{2}/\d{2}/\d{4}.*\(\d{1,2}:\d{2}-\s*\d{1,2}:\d{2}\)", text))
 
 
+def _ungarble_minutes(garbled: str, suffix_digits: str) -> str | None:
+    """Remove session-suffix digits from a garbled minutes string.
+
+    pdfplumber interleaves adjacent-column text into session header cells.
+    For a session with suffix '8' the minutes '00' become '080'; for suffix
+    '13' the minutes '30' become '1330'.  The rule that recovers the original
+    two digits is: remove the *first* occurrence of each suffix digit in order,
+    except for the *last* suffix digit where we remove the *last* occurrence.
+
+    Returns the recovered 2-digit string, or None when recovery fails.
+    """
+    # Already a clean 2-digit value – nothing to remove
+    if len(garbled) == 2 and garbled.isdigit():
+        return garbled
+    n = len(suffix_digits)
+    result = garbled
+    for i, d in enumerate(suffix_digits):
+        idx = result.rfind(d) if i == n - 1 else result.find(d)
+        if idx < 0:
+            break
+        result = result[:idx] + result[idx + 1:]
+    return result if (len(result) == 2 and result.isdigit()) else None
+
+
+def _clean_garbled_datetime_cell(text: str) -> str:
+    """Fix interleaved adjacent-column text in session header cells.
+
+    pdfplumber merges neighbouring column text into one cell, turning e.g.
+      'Session De8 26/05/2026 (13:00-13:30)'
+    into
+      'Session De8 26/05/2D02e6m (1o3: 080-13:30)'
+
+    Steps:
+    1. Strip all alpha chars (restores the DD/MM/YYYY date and HH hours).
+    2. Collapse stray spaces between date/time components.
+    3. Un-garble the minutes fields using the session-number suffix digits.
+    Returns the original string unchanged if recovery is not possible.
+    """
+    m = re.match(r'^(Session\s+(\S+))\s+(.*)', text, re.DOTALL)
+    if not m:
+        return text
+    prefix     = m.group(1)   # 'Session De8'
+    suffix_raw = m.group(2)   # 'De8'
+    rest       = m.group(3)   # the possibly-garbled date/time portion
+
+    # Already clean – nothing to do
+    if re.search(r'\d{2}/\d{2}/\d{4}', rest):
+        return text
+
+    suffix_digits = re.sub(r'\D', '', suffix_raw)  # 'De8'→'8', 'Pa13'→'13'
+
+    # Step 1: remove all alpha chars (restores date digits and hour digits)
+    cleaned = re.sub(r'[A-Za-z]', '', rest)
+
+    # Step 2: collapse stray spaces in date and time parts separately.
+    # Splitting at '(' avoids merging hours from adjacent time components
+    # (e.g. '13 2:040' must not become '132:040').
+    if '(' in cleaned:
+        paren_idx = cleaned.index('(')
+        date_part = cleaned[:paren_idx]
+        time_part = cleaned[paren_idx:]
+        date_part = re.sub(r'(\d)\s+([/\d])', r'\1\2', date_part)
+        date_part = re.sub(r'([/])\s+(\d)',   r'\1\2', date_part)
+        time_part = re.sub(r'(\d)\s+([-:])',   r'\1\2', time_part)
+        time_part = re.sub(r'([-:])\s+(\d)',   r'\1\2', time_part)
+        cleaned = date_part + time_part
+    else:
+        cleaned = re.sub(r'(\d)\s+([/:\d])',  r'\1\2', cleaned)
+        cleaned = re.sub(r'([-/:])\s+(\d)',   r'\1\2', cleaned)
+
+    # Bail out if the date still isn't clean
+    if not re.search(r'\d{2}/\d{2}/\d{4}', cleaned):
+        return text
+
+    # Step 3: un-garble start and end minutes
+    def fix_time(tm):
+        sh, sm_g = tm.group(1), tm.group(2)
+        eh, em_g = tm.group(3), tm.group(4)
+
+        start_mins = _ungarble_minutes(sm_g, suffix_digits)
+        end_mins   = _ungarble_minutes(em_g, suffix_digits)
+
+        if (start_mins is not None and end_mins is not None
+                and int(start_mins) % 30 == 0 and int(end_mins) % 30 == 0):
+            return f'({sh}:{start_mins}-{eh}:{end_mins})'
+
+        # Fallback: derive start from a clean end time (demos are always 30 min)
+        if end_mins is not None and int(end_mins) % 30 == 0:
+            total = int(eh) * 60 + int(end_mins) - 30
+            if total >= 0:
+                return f'({total // 60}:{total % 60:02d}-{eh}:{end_mins})'
+
+        return tm.group(0)
+
+    cleaned = re.sub(
+        r'\((\d{1,2}):(\d+)\s*-\s*(\d{1,2}):(\d+)\)',
+        fix_time, cleaned,
+    )
+
+    if _has_datetime(cleaned):
+        return f'{prefix} {cleaned}'.strip()
+    # Return partially cleaned text when at least the date is recoverable so
+    # the session is registered in active_sessions (preventing presentations
+    # from contaminating adjacent sessions) even if the time cannot be parsed.
+    if re.search(r'\d{2}/\d{2}/\d{4}', cleaned):
+        return f'{prefix} {cleaned}'.strip()
+    return text
+
+
 def _make_room_id(label: str) -> str:
     """'Main Hall' → 'main-hall',  'Room 1' → 'room-1'"""
     return label.strip().lower().replace(" ", "-")
@@ -135,6 +244,7 @@ def _process_table(table: list, days_map: dict, room_map: dict, state: dict) -> 
             c = _cell(row[offset] if offset < len(row) else None)
             if not c:
                 continue
+            c = _clean_garbled_datetime_cell(c)
 
             # Skip column-header marker cells ("ID TYPE PRESENTER TITLE")
             if c == "ID TYPE PRESENTER TITLE":
@@ -196,10 +306,6 @@ def _process_table(table: list, days_map: dict, room_map: dict, state: dict) -> 
         # Always buffer session ID-only cells for the next row
         state["pending_ids"].update(id_only)
 
-        # If this row produced only session IDs, nothing else to do
-        if id_only and not full_sessions and not name_time:
-            continue
-
         # Match name+time cells with buffered pending IDs (split-header rows)
         matched_sessions: dict[int, dict] = {}
         for offset, (name, start, end) in name_time.items():
@@ -244,6 +350,24 @@ def _process_table(table: list, days_map: dict, room_map: dict, state: dict) -> 
                     day["events"].append(second)
                     state["active_sessions"][offset] = second  # subsequent rows → second block
                     continue
+                # A cell with a full session name ("Session A9 Name …") that
+                # wasn't buffered as id_only: create a proper session dict.
+                sid_m = re.match(r"^Session\s+(\S+)", name)
+                if sid_m and offset in room_map:
+                    session_id = f"Session {sid_m.group(1)}"
+                    room_label, room_nickname = room_map.get(offset, ("?", ""))
+                    new_sess = {
+                        "type":          "session",
+                        "session_id":    session_id,
+                        "name":          name,
+                        "room_id":       _make_room_id(room_label),
+                        "start":         start,
+                        "end":           end,
+                        "presentations": [],
+                    }
+                    state["active_sessions"][offset] = new_sess
+                    day["events"].append(new_sess)
+                    continue
                 room_id = _room_id_for_col(offset, room_map)
                 _add_special(day, name, start, end, room_id)
 
@@ -276,6 +400,12 @@ def _process_table(table: list, days_map: dict, room_map: dict, state: dict) -> 
             typ_cell = _cell(row[offset + 1] if offset + 1 < len(row) else None)
             pre_cell = _cell(row[offset + 2] if offset + 2 < len(row) else None)
             ttl_cell = _cell(row[offset + 3] if offset + 3 < len(row) else None)
+
+            # Strip merged column-header prefixes (e.g. "ID 929" → "929")
+            id_cell  = re.sub(r'^ID\s+',        '', id_cell)
+            typ_cell = re.sub(r'^TYPE\s+',      '', typ_cell)
+            pre_cell = re.sub(r'^PRESENTER\s+', '', pre_cell)
+            ttl_cell = re.sub(r'^TITLE\s+',     '', ttl_cell)
 
             if not re.match(r"^\d+$", id_cell):
                 continue
